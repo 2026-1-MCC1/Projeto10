@@ -15,7 +15,7 @@ Vide tutoriais do PI.
 ## Nome do Grupo
 
 ## Integrantes: <a href="https://www.linkedin.com/in/leonardo-fran%C3%A7a-68bb97349/">Leonardo Batista França </a> 
-## Integrantes: <a href="https://github.com/ArthurLdl">Arthur Lima de Luiz </a> <a href="https://github.com/Brianwalter-q">Brian Walter</a>
+## Integrantes: <a href="https://github.com/ArthurLdl">Arthur Lima de Luiz </a>, <a href="https://github.com/Brianwalter-q">Brian Walter</a>
 
 ## Professores Orientadores: <a href="https://www.linkedin.com/in/victorbarq/">Dr. Victor Von Doom</a>, <a href="https://www.linkedin.com/in/victorbarq/">Me. Saitama</a>, <a href="https://www.linkedin.com/in/victorbarq/">Dr. Strange</a>, <a href="https://www.linkedin.com/in/victorbarq/">Me. Yoda</a>, <a href="https://www.linkedin.com/in/victorbarq/">Dr. Gero</a>
 
