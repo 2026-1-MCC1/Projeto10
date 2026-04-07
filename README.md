@@ -17,7 +17,7 @@ Vide tutoriais do PI.
 ## Integrantes: <a href="https://www.linkedin.com/in/leonardo-fran%C3%A7a-68bb97349/">Leonardo Batista França </a>, <a href="https://github.com/ArthurLdl">Arthur Lima de Luiz </a>, <a href="https://github.com/Brianwalter-q">Brian Walter</a>
 
 
-## Professores Orientadores: <a href="https://www.linkedin.com/in/victorbarq/">Dr. Victor Von Doom</a>, <a href="https://www.linkedin.com/in/victorbarq/">Me. Saitama</a>, <a href="https://www.linkedin.com/in/victorbarq/">Dr. Strange</a>, <a href="https://www.linkedin.com/in/victorbarq/">Me. Yoda</a>, <a href="https://www.linkedin.com/in/victorbarq/">Dr. Gero</a>
+## Professores Orientadores: <a href="https://www.linkedin.com/in/victorbarq/">Victor Bruno Alexander Rosetti de Quiroz</a>, <a href="https://www.linkedin.com/in/victorbarq/">Renata Muniz Do Nascimento</a>, <a href="https://www.linkedin.com/in/victorbarq/">Adriano Felix Valente</a>, <a href="https://www.linkedin.com/in/victorbarq/">Eduardo Savino Gomes</a>, <a href="https://www.linkedin.com/in/victorbarq/">Luis Fernando dos Santos Pires</a>
 
 ## Descrição
 
