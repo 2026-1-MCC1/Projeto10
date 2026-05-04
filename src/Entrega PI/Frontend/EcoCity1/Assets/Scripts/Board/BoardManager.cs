@@ -11,6 +11,7 @@ public class BoardManager : MonoBehaviour
     [SerializeField] private float tileSpacing = 2.2f;
     [SerializeField] private float tileHeight = 0f;
     [SerializeField] private bool generateOnStart = true;
+    [SerializeField] private TileVisualManager visualManager;
 
     public List<Tile> Tiles { get; } = new List<Tile>();
 
@@ -60,6 +61,8 @@ public class BoardManager : MonoBehaviour
         {
             Debug.LogError($"O tabuleiro deveria ter {ExpectedTileCount} tiles, mas gerou {Tiles.Count}.", this);
         }
+
+        visualManager?.Initialize(Tiles);
     }
 
     private void ClearBoard()
@@ -151,10 +154,12 @@ public class BoardManager : MonoBehaviour
             {
                 Name = $"Empty_{index}",
                 Type = TileType.Empty,
-                Price = 0,
-                FinanceImpact = 0,
-                WellBeingImpact = 0,
-                PollutionImpact = 0
+                purchasePrice = 0,
+                rentPrice = 0,
+                moneyImpact = 0,
+                wellBeingImpact = 0,
+                pollutionImpact = 0,
+                propertyDescription = "Casa vazia sem efeitos."
             };
         }
 
@@ -164,10 +169,12 @@ public class BoardManager : MonoBehaviour
         {
             Name = GetTileName(type, index),
             Type = type,
-            Price = GetTilePrice(type),
-            FinanceImpact = GetFinanceImpact(type),
-            WellBeingImpact = GetWellBeingImpact(type),
-            PollutionImpact = GetPollutionImpact(type)
+            purchasePrice = GetTilePrice(type),
+            rentPrice = GetTileRent(type),
+            moneyImpact = GetFinanceImpact(type),
+            wellBeingImpact = GetWellBeingImpact(type),
+            pollutionImpact = GetPollutionImpact(type),
+            propertyDescription = GetTileDescription(type)
         };
     }
 
@@ -202,6 +209,32 @@ public class BoardManager : MonoBehaviour
             case TileType.Shopping:
             case TileType.FoodCourt:
                 return 200;
+            default:
+                return 0;
+        }
+    }
+
+    private int GetTileRent(TileType type)
+    {
+        switch (type)
+        {
+            case TileType.Start:
+            case TileType.Empty:
+                return 0;
+            case TileType.Park:
+                return 20;
+            case TileType.Residential:
+                return 30;
+            case TileType.School:
+            case TileType.Hospital:
+                return 35;
+            case TileType.SolarPlant:
+            case TileType.TreatmentPlant:
+                return 40;
+            case TileType.Factory:
+            case TileType.Shopping:
+            case TileType.FoodCourt:
+                return 45;
             default:
                 return 0;
         }
@@ -284,6 +317,35 @@ public class BoardManager : MonoBehaviour
                 return -5;
             default:
                 return 0;
+        }
+    }
+
+    private string GetTileDescription(TileType type)
+    {
+        switch (type)
+        {
+            case TileType.Factory:
+                return "Gera renda mas aumenta a poluicao da cidade.";
+            case TileType.Residential:
+                return "Moradia para a populacao com crescimento moderado.";
+            case TileType.Park:
+                return "Melhora a qualidade de vida e reduz a poluicao.";
+            case TileType.Shopping:
+                return "Movimenta a economia local com impacto urbano.";
+            case TileType.School:
+                return "Fortalece a educacao e o bem-estar coletivo.";
+            case TileType.Hospital:
+                return "Aumenta a saude publica e reduz riscos sociais.";
+            case TileType.SolarPlant:
+                return "Produz energia limpa com ganhos ambientais.";
+            case TileType.TreatmentPlant:
+                return "Trata residuos e ajuda no equilibrio ambiental.";
+            case TileType.FoodCourt:
+                return "Atrai consumo e renda com impacto moderado.";
+            case TileType.Start:
+                return "Casa inicial do percurso.";
+            default:
+                return "Casa especial sem descricao adicional.";
         }
     }
 }

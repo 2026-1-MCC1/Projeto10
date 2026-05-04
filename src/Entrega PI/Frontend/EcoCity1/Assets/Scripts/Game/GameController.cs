@@ -9,19 +9,39 @@ public class GameController : MonoBehaviour
     [SerializeField] private GameHUD gameHUD;
     [SerializeField] private PhysicalDice physicalDice;
     [SerializeField] private PurchasePanel purchasePanel;
+    [SerializeField] private RoundManager roundManager;
+    [SerializeField] private CameraController cameraController;
+    [SerializeField] private TileVisualManager visualManager;
 
     private bool isBusy;
+    private int pendingDiceResult;
+    private bool hasPendingDiceResult;
 
+    /// <summary>
+    /// Garante a inscricao nos eventos ao habilitar o controlador.
+    /// </summary>
+    private void OnEnable()
+    {
+        SubscribeToRoundManager();
+        SubscribeToPlayerPiece();
+    }
+
+    /// <summary>
+    /// Inicializa as referencias necessarias e prepara o estado inicial do jogo.
+    /// </summary>
     private void Start()
     {
         ResolveReferences();
 
-        if (boardManager == null || playerPiece == null || playerStats == null)
+        if (boardManager == null || playerPiece == null || playerStats == null || roundManager == null)
         {
             Debug.LogError("GameController nao conseguiu encontrar todas as referencias necessarias.", this);
             enabled = false;
             return;
         }
+
+        SubscribeToRoundManager();
+        SubscribeToPlayerPiece();
 
         if (boardManager.Tiles.Count == 0)
         {
@@ -29,10 +49,32 @@ public class GameController : MonoBehaviour
         }
 
         playerPiece.Initialize(boardManager);
+        cameraController?.SetState(CameraState.Idle);
+        visualManager?.SetCurrentTile(playerPiece.CurrentTileIndex);
         RefreshHUD();
         ClearHUDDiceResult();
     }
 
+    /// <summary>
+    /// Remove inscricoes em eventos quando o objeto e desativado.
+    /// </summary>
+    private void OnDisable()
+    {
+        if (roundManager != null)
+        {
+            roundManager.OnGameOver -= HandleGameOver;
+        }
+
+        if (playerPiece != null)
+        {
+            playerPiece.OnMoveStep -= HandlePlayerMoveStep;
+            playerPiece.OnMoveComplete -= HandlePlayerMoveComplete;
+        }
+    }
+
+    /// <summary>
+    /// Monitora a entrada do jogador para iniciar uma nova jogada.
+    /// </summary>
     private void Update()
     {
         if (Input.GetKeyDown(KeyCode.Space) && !playerPiece.IsMoving && !isBusy)
@@ -41,8 +83,16 @@ public class GameController : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Executa o fluxo completo de uma jogada do jogador.
+    /// </summary>
     private IEnumerator PlayTurn()
     {
+        if (roundManager != null && !roundManager.CanRoll)
+        {
+            yield break;
+        }
+
         if (physicalDice == null)
         {
             Debug.LogError("PhysicalDice nao esta configurado no GameController.", this);
@@ -51,19 +101,17 @@ public class GameController : MonoBehaviour
         }
 
         isBusy = true;
+        cameraController?.SetState(CameraState.Idle);
         ShowHUDMessage("Rolando dado...");
         ClearHUDDiceResult();
 
-        int diceResult = 0;
-        bool hasDiceResult = false;
+        hasPendingDiceResult = false;
+        pendingDiceResult = 0;
+        physicalDice.RollDice(OnDiceResult);
 
-        yield return StartCoroutine(physicalDice.Roll(result =>
-        {
-            diceResult = result;
-            hasDiceResult = true;
-        }));
+        yield return new WaitUntil(() => hasPendingDiceResult);
 
-        if (!hasDiceResult)
+        if (pendingDiceResult <= 0)
         {
             Debug.LogError("O dado fisico nao retornou um resultado valido.", this);
             ShowHUDMessage("Falha ao obter resultado do dado.");
@@ -71,9 +119,7 @@ public class GameController : MonoBehaviour
             yield break;
         }
 
-        Debug.Log($"Dado fisico resultou em: {diceResult}");
-
-        yield return StartCoroutine(playerPiece.MoveSteps(diceResult));
+        yield return StartCoroutine(MoveAndRegister(pendingDiceResult));
 
         Tile currentTile = boardManager.GetTileByIndex(playerPiece.CurrentTileIndex);
 
@@ -94,6 +140,9 @@ public class GameController : MonoBehaviour
         isBusy = false;
     }
 
+    /// <summary>
+    /// Localiza automaticamente referencias importantes quando necessario.
+    /// </summary>
     private void ResolveReferences()
     {
         if (boardManager == null)
@@ -140,8 +189,103 @@ public class GameController : MonoBehaviour
         {
             purchasePanel = FindObjectOfType<PurchasePanel>();
         }
+
+        if (roundManager == null)
+        {
+            roundManager = FindObjectOfType<RoundManager>();
+        }
+
+        if (cameraController == null)
+        {
+            cameraController = FindObjectOfType<CameraController>();
+        }
+
+        if (visualManager == null)
+        {
+            visualManager = FindObjectOfType<TileVisualManager>();
+        }
     }
 
+    /// <summary>
+    /// Recebe o resultado do dado fisico e prepara a continuidade do turno.
+    /// </summary>
+    private void OnDiceResult(int result)
+    {
+        pendingDiceResult = result;
+        hasPendingDiceResult = true;
+        Debug.Log($"Dado fisico resultou em: {result}");
+    }
+
+    /// <summary>
+    /// Move o jogador e registra a rodada depois que o deslocamento termina.
+    /// </summary>
+    private IEnumerator MoveAndRegister(int result)
+    {
+        yield return StartCoroutine(playerPiece.MoveSteps(result));
+
+        if (roundManager != null)
+        {
+            roundManager.RegisterRoll();
+        }
+    }
+
+    /// <summary>
+    /// Inscreve o controlador nos eventos do gerenciador de rodadas.
+    /// </summary>
+    private void SubscribeToRoundManager()
+    {
+        if (roundManager == null)
+        {
+            return;
+        }
+
+        roundManager.OnGameOver -= HandleGameOver;
+        roundManager.OnGameOver += HandleGameOver;
+    }
+
+    /// <summary>
+    /// Inscreve o controlador nos eventos de movimento da peca.
+    /// </summary>
+    private void SubscribeToPlayerPiece()
+    {
+        if (playerPiece == null)
+        {
+            return;
+        }
+
+        playerPiece.OnMoveStep -= HandlePlayerMoveStep;
+        playerPiece.OnMoveStep += HandlePlayerMoveStep;
+        playerPiece.OnMoveComplete -= HandlePlayerMoveComplete;
+        playerPiece.OnMoveComplete += HandlePlayerMoveComplete;
+    }
+
+    /// <summary>
+    /// Coloca a camera em seguimento enquanto o jogador avanca pelo tabuleiro.
+    /// </summary>
+    private void HandlePlayerMoveStep(Vector3 stepPosition)
+    {
+        cameraController?.SetState(CameraState.Follow);
+    }
+
+    /// <summary>
+    /// Foca a camera na casa final onde o jogador parou.
+    /// </summary>
+    private void HandlePlayerMoveComplete(Vector3 finalPosition)
+    {
+        if (boardManager == null || playerPiece == null)
+        {
+            return;
+        }
+
+        Tile currentTile = boardManager.GetTileByIndex(playerPiece.CurrentTileIndex);
+        Vector3 focusPosition = currentTile != null ? currentTile.transform.position : finalPosition;
+        cameraController?.SetState(CameraState.Focus, focusPosition);
+        visualManager?.SetCurrentTile(playerPiece.CurrentTileIndex);
+    }
+
+    /// <summary>
+    /// Processa os efeitos da casa atual apos o termino do movimento.
+    /// </summary>
     private IEnumerator ProcessCurrentTile(Tile currentTile, System.Action<string> onMessageReady)
     {
         TileData data = currentTile.Data;
@@ -153,70 +297,83 @@ public class GameController : MonoBehaviour
             yield break;
         }
 
-        bool canBePurchased = data.Price > 0 &&
-                              data.Type != TileType.Start &&
-                              data.Type != TileType.Empty;
-
-        if (!canBePurchased)
+        if (currentTile.CanBePurchased())
         {
-            onMessageReady?.Invoke(ApplyNonPurchasableTileImpact(data));
+            if (purchasePanel == null)
+            {
+                Debug.LogWarning("PurchasePanel nao esta configurado. A compra sera ignorada.", this);
+                onMessageReady?.Invoke($"Painel de compra indisponivel para {data.Name}.");
+                OnPurchaseDecision();
+                yield break;
+            }
+
+            bool decisionMade = false;
+            int previousMoney = playerStats.Money;
+            bool alreadyOwnedAfterDecision = false;
+
+            roundManager?.SetCanRoll(false);
+            cameraController?.SetState(CameraState.Focus, currentTile.transform.position);
+            purchasePanel.ShowPurchase(currentTile, playerStats, () =>
+            {
+                alreadyOwnedAfterDecision = currentTile.IsPurchased && currentTile.owner == playerStats;
+                decisionMade = true;
+            });
+
+            while (!decisionMade)
+            {
+                yield return null;
+            }
+
+            if (alreadyOwnedAfterDecision && playerStats.Money < previousMoney)
+            {
+                visualManager?.MarkAsPurchased(currentTile.TileIndex);
+                Debug.Log($"Comprou {data.Name} por {data.purchasePrice}");
+                Debug.Log(
+                    $"Impactos: Financeiro {data.moneyImpact} | " +
+                    $"Bem-estar {data.wellBeingImpact} | " +
+                    $"Poluicao {data.pollutionImpact}");
+                onMessageReady?.Invoke($"Voce comprou {data.Name}.");
+            }
+            else
+            {
+                onMessageReady?.Invoke($"Voce decidiu nao comprar {data.Name}.");
+            }
+
+            OnPurchaseDecision();
             yield break;
         }
 
-        if (currentTile.IsPurchased)
+        if (currentTile.IsPurchased && currentTile.owner != null && currentTile.owner != playerStats)
         {
-            Debug.Log("Esta propriedade ja foi comprada.");
-            onMessageReady?.Invoke("Esta propriedade ja foi comprada.");
+            if (purchasePanel == null)
+            {
+                playerStats.SpendMoney(data.rentPrice);
+                onMessageReady?.Invoke($"Voce pagou aluguel: ${data.rentPrice}");
+                OnPurchaseDecision();
+                yield break;
+            }
+
+            bool decisionMade = false;
+            roundManager?.SetCanRoll(false);
+            purchasePanel.ShowRentMessage(currentTile, playerStats, () => decisionMade = true);
+
+            while (!decisionMade)
+            {
+                yield return null;
+            }
+
+            onMessageReady?.Invoke($"Voce pagou aluguel: ${data.rentPrice}");
+            OnPurchaseDecision();
             yield break;
         }
 
-        if (purchasePanel == null)
-        {
-            Debug.LogWarning("PurchasePanel nao esta configurado. A compra sera ignorada.", this);
-            onMessageReady?.Invoke($"Painel de compra indisponivel para {data.Name}.");
-            yield break;
-        }
-
-        bool decisionMade = false;
-        bool playerWantsToBuy = false;
-
-        purchasePanel.Show(currentTile, playerStats, decision =>
-        {
-            playerWantsToBuy = decision;
-            decisionMade = true;
-        });
-
-        while (!decisionMade)
-        {
-            yield return null;
-        }
-
-        if (!playerWantsToBuy)
-        {
-            onMessageReady?.Invoke($"Voce decidiu nao comprar {data.Name}.");
-            yield break;
-        }
-
-        if (!playerStats.CanAfford(data.Price))
-        {
-            Debug.Log($"Dinheiro insuficiente para comprar {data.Name}");
-            onMessageReady?.Invoke($"Dinheiro insuficiente para comprar {data.Name}");
-            yield break;
-        }
-
-        playerStats.SpendMoney(data.Price);
-        currentTile.Purchase();
-        playerStats.ApplyTileImpact(data);
-
-        Debug.Log($"Comprou {data.Name} por {data.Price}");
-        Debug.Log(
-            $"Impactos: Financeiro {data.FinanceImpact} | " +
-            $"Bem-estar {data.WellBeingImpact} | " +
-            $"Poluicao {data.PollutionImpact}");
-
-        onMessageReady?.Invoke($"Voce comprou {data.Name}.");
+        onMessageReady?.Invoke(ApplyNonPurchasableTileImpact(data));
+        OnPurchaseDecision();
     }
 
+    /// <summary>
+    /// Aplica os efeitos de uma casa que nao pode ser comprada.
+    /// </summary>
     private string ApplyNonPurchasableTileImpact(TileData data)
     {
         if (data.FinanceImpact == 0 && data.WellBeingImpact == 0 && data.PollutionImpact == 0)
@@ -234,6 +391,9 @@ public class GameController : MonoBehaviour
         return $"Impactos da tile {data.Name} aplicados.";
     }
 
+    /// <summary>
+    /// Atualiza os valores exibidos na interface do jogador.
+    /// </summary>
     private void RefreshHUD()
     {
         if (gameHUD == null)
@@ -244,6 +404,9 @@ public class GameController : MonoBehaviour
         gameHUD.UpdateStats(playerStats);
     }
 
+    /// <summary>
+    /// Limpa o resultado anterior do dado na interface.
+    /// </summary>
     private void ClearHUDDiceResult()
     {
         if (gameHUD == null)
@@ -254,6 +417,9 @@ public class GameController : MonoBehaviour
         gameHUD.ClearDiceResult();
     }
 
+    /// <summary>
+    /// Exibe uma mensagem de acao na interface do jogo.
+    /// </summary>
     private void ShowHUDMessage(string message)
     {
         if (gameHUD == null)
@@ -262,5 +428,23 @@ public class GameController : MonoBehaviour
         }
 
         gameHUD.ShowActionMessage(message);
+    }
+
+    /// <summary>
+    /// Reage ao encerramento da partida quando o limite de rodadas e atingido.
+    /// </summary>
+    private void HandleGameOver()
+    {
+        Debug.Log("Jogo encerrado! " + roundManager.CurrentRound + " rodadas jogadas.");
+    }
+
+    /// <summary>
+    /// Finaliza a interacao com a casa atual e libera a proxima jogada.
+    /// </summary>
+    private void OnPurchaseDecision()
+    {
+        cameraController?.SetState(CameraState.Idle);
+        roundManager?.SetCanRoll(true);
+        RefreshHUD();
     }
 }

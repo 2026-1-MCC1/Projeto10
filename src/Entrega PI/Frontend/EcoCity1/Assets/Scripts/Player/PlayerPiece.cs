@@ -10,7 +10,12 @@ public class PlayerPiece : MonoBehaviour
 
     public int CurrentTileIndex { get; private set; }
     public bool IsMoving { get; private set; }
+    public event System.Action<Vector3> OnMoveStep;
+    public event System.Action<Vector3> OnMoveComplete;
 
+    /// <summary>
+    /// Inicializa a peca do jogador com a referencia do tabuleiro.
+    /// </summary>
     public void Initialize(BoardManager manager)
     {
         boardManager = manager;
@@ -25,6 +30,9 @@ public class PlayerPiece : MonoBehaviour
         transform.position = GetTileCenterPosition(CurrentTileIndex);
     }
 
+    /// <summary>
+    /// Move a peca a quantidade de casas indicada pelo resultado do dado.
+    /// </summary>
     public IEnumerator MoveSteps(int steps)
     {
         if (IsMoving)
@@ -62,11 +70,16 @@ public class PlayerPiece : MonoBehaviour
             }
 
             transform.position = targetPosition;
+            OnMoveStep?.Invoke(transform.position);
         }
 
         IsMoving = false;
+        OnMoveComplete?.Invoke(transform.position);
     }
 
+    /// <summary>
+    /// Calcula a posicao central da casa informada.
+    /// </summary>
     private Vector3 GetTileCenterPosition(int tileIndex)
     {
         Tile tile = boardManager.GetTileByIndex(tileIndex);

@@ -17,16 +17,43 @@ public class PlayerStats : MonoBehaviour
         Pollution = InitialPollution;
     }
 
+    /// <summary>
+    /// Verifica se o jogador pode pagar um determinado valor.
+    /// </summary>
     public bool CanAfford(int price)
     {
         return Money >= price;
     }
 
+    /// <summary>
+    /// Verifica se o jogador possui dinheiro suficiente para uma compra.
+    /// </summary>
+    public bool HasEnoughMoney(int amount)
+    {
+        return Money >= amount;
+    }
+
+    /// <summary>
+    /// Desconta dinheiro do jogador sem permitir valores negativos.
+    /// </summary>
     public void SpendMoney(int amount)
     {
         Money = Mathf.Clamp(Money - amount, 0, int.MaxValue);
     }
 
+    /// <summary>
+    /// Aplica impactos diretos nos atributos do jogador.
+    /// </summary>
+    public void ApplyImpacts(int money, int wellBeing, int pollution)
+    {
+        Money = Mathf.Clamp(Money + money, 0, int.MaxValue);
+        WellBeing = Mathf.Clamp(WellBeing + wellBeing, 0, 100);
+        Pollution = Mathf.Clamp(Pollution + pollution, 0, 100);
+    }
+
+    /// <summary>
+    /// Aplica os impactos configurados em uma casa do tabuleiro.
+    /// </summary>
     public void ApplyTileImpact(TileData data)
     {
         if (data == null)
@@ -35,11 +62,12 @@ public class PlayerStats : MonoBehaviour
             return;
         }
 
-        Money = Mathf.Clamp(Money + data.FinanceImpact, 0, int.MaxValue);
-        WellBeing = Mathf.Clamp(WellBeing + data.WellBeingImpact, 0, 100);
-        Pollution = Mathf.Clamp(Pollution + data.PollutionImpact, 0, 100);
+        ApplyImpacts(data.FinanceImpact, data.WellBeingImpact, data.PollutionImpact);
     }
 
+    /// <summary>
+    /// Exibe os status atuais do jogador no console para debug.
+    /// </summary>
     public void PrintStats()
     {
         Debug.Log($"Status atuais -> Money: {Money} | WellBeing: {WellBeing} | Pollution: {Pollution}");
