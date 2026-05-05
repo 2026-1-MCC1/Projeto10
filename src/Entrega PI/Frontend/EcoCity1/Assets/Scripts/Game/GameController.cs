@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class GameController : MonoBehaviour
 {
@@ -12,10 +13,19 @@ public class GameController : MonoBehaviour
     [SerializeField] private RoundManager roundManager;
     [SerializeField] private CameraController cameraController;
     [SerializeField] private TileVisualManager visualManager;
+    [SerializeField] private PropertySpawner propertySpawner;
+    [SerializeField] private FinalResultScreen finalResultScreen;
+    [SerializeField] private CityEventSystem cityEventSystem;
+    [SerializeField] private GameAudioController gameAudioController;
+    [Header("Debug de Finais")]
+    [SerializeField] private bool enableEndingDebugPreview = true;
 
     private bool isBusy;
     private int pendingDiceResult;
     private bool hasPendingDiceResult;
+    private bool pendingGameOver;
+    private bool finalScreenShown;
+    private bool isPreviewingEnding;
 
     /// <summary>
     /// Garante a inscricao nos eventos ao habilitar o controlador.
@@ -52,7 +62,9 @@ public class GameController : MonoBehaviour
         cameraController?.SetState(CameraState.Idle);
         visualManager?.SetCurrentTile(playerPiece.CurrentTileIndex);
         RefreshHUD();
+        UpdateRoundHUD();
         ClearHUDDiceResult();
+        gameHUD?.ShowTutorialSequence();
     }
 
     /// <summary>
@@ -63,6 +75,7 @@ public class GameController : MonoBehaviour
         if (roundManager != null)
         {
             roundManager.OnGameOver -= HandleGameOver;
+            roundManager.OnRoundChanged -= HandleRoundChanged;
         }
 
         if (playerPiece != null)
@@ -77,6 +90,13 @@ public class GameController : MonoBehaviour
     /// </summary>
     private void Update()
     {
+        HandleDebugEndingPreviewInput();
+
+        if (finalScreenShown)
+        {
+            return;
+        }
+
         if (Input.GetKeyDown(KeyCode.Space) && !playerPiece.IsMoving && !isBusy)
         {
             StartCoroutine(PlayTurn());
@@ -104,6 +124,7 @@ public class GameController : MonoBehaviour
         cameraController?.SetState(CameraState.Idle);
         ShowHUDMessage("Rolando dado...");
         ClearHUDDiceResult();
+        gameAudioController?.PlayRoll();
 
         hasPendingDiceResult = false;
         pendingDiceResult = 0;
@@ -137,6 +158,13 @@ public class GameController : MonoBehaviour
         playerStats.PrintStats();
         Debug.Log(ScoreCalculator.GetScoreExplanation(playerStats));
         RefreshHUD();
+
+        if (pendingGameOver && !finalScreenShown)
+        {
+            ShowFinalScreen();
+            yield break;
+        }
+
         isBusy = false;
     }
 
@@ -204,6 +232,50 @@ public class GameController : MonoBehaviour
         {
             visualManager = FindObjectOfType<TileVisualManager>();
         }
+
+        if (propertySpawner == null)
+        {
+            propertySpawner = FindObjectOfType<PropertySpawner>();
+        }
+
+        if (cityEventSystem == null)
+        {
+            cityEventSystem = FindObjectOfType<CityEventSystem>();
+
+            if (cityEventSystem == null)
+            {
+                GameObject eventObject = new GameObject("CityEventSystem");
+                cityEventSystem = eventObject.AddComponent<CityEventSystem>();
+            }
+        }
+
+        if (gameAudioController == null)
+        {
+            gameAudioController = FindObjectOfType<GameAudioController>();
+
+            if (gameAudioController == null)
+            {
+                GameObject audioObject = new GameObject("GameAudioController");
+                gameAudioController = audioObject.AddComponent<GameAudioController>();
+            }
+        }
+
+        if (finalResultScreen == null)
+        {
+            finalResultScreen = FindObjectOfType<FinalResultScreen>();
+
+            if (finalResultScreen == null)
+            {
+                Canvas canvas = FindObjectOfType<Canvas>();
+
+                if (canvas != null)
+                {
+                    GameObject screenObject = new GameObject("FinalResultScreen", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(FinalResultScreen));
+                    screenObject.transform.SetParent(canvas.transform, false);
+                    finalResultScreen = screenObject.GetComponent<FinalResultScreen>();
+                }
+            }
+        }
     }
 
     /// <summary>
@@ -213,6 +285,7 @@ public class GameController : MonoBehaviour
     {
         pendingDiceResult = result;
         hasPendingDiceResult = true;
+        gameHUD?.UpdateDiceResult(result);
         Debug.Log($"Dado fisico resultou em: {result}");
     }
 
@@ -241,6 +314,8 @@ public class GameController : MonoBehaviour
 
         roundManager.OnGameOver -= HandleGameOver;
         roundManager.OnGameOver += HandleGameOver;
+        roundManager.OnRoundChanged -= HandleRoundChanged;
+        roundManager.OnRoundChanged += HandleRoundChanged;
     }
 
     /// <summary>
@@ -312,7 +387,9 @@ public class GameController : MonoBehaviour
             bool alreadyOwnedAfterDecision = false;
 
             roundManager?.SetCanRoll(false);
-            cameraController?.SetState(CameraState.Focus, currentTile.transform.position);
+            propertySpawner?.ShowProperty(currentTile);
+            cameraController?.SetCinematic();
+            yield return new WaitForSeconds(0.8f);
             purchasePanel.ShowPurchase(currentTile, playerStats, () =>
             {
                 alreadyOwnedAfterDecision = currentTile.IsPurchased && currentTile.owner == playerStats;
@@ -326,19 +403,28 @@ public class GameController : MonoBehaviour
 
             if (alreadyOwnedAfterDecision && playerStats.Money < previousMoney)
             {
+                propertySpawner?.ConfirmPurchase();
                 visualManager?.MarkAsPurchased(currentTile.TileIndex);
+                gameAudioController?.PlayPurchase();
                 Debug.Log($"Comprou {data.Name} por {data.purchasePrice}");
                 Debug.Log(
                     $"Impactos: Financeiro {data.moneyImpact} | " +
                     $"Bem-estar {data.wellBeingImpact} | " +
                     $"Poluicao {data.pollutionImpact}");
                 onMessageReady?.Invoke($"Voce comprou {data.Name}.");
+                gameHUD?.ShowTemporaryActionMessage(
+                    $"Compra concluida: {data.Name} | {FormatSignedMoney(data.moneyImpact)}/rodada | Bem-estar {FormatSignedValue(data.wellBeingImpact)} | Poluicao {FormatSignedValue(data.pollutionImpact)}",
+                    3.4f);
             }
             else
             {
+                propertySpawner?.CancelPurchase();
+                gameAudioController?.PlayPass();
                 onMessageReady?.Invoke($"Voce decidiu nao comprar {data.Name}.");
+                gameHUD?.ShowTemporaryActionMessage($"Voce passou a compra de {data.Name}.", 2.2f);
             }
 
+            yield return new WaitForSeconds(0.6f);
             OnPurchaseDecision();
             yield break;
         }
@@ -348,7 +434,9 @@ public class GameController : MonoBehaviour
             if (purchasePanel == null)
             {
                 playerStats.SpendMoney(data.rentPrice);
+                gameAudioController?.PlayRent();
                 onMessageReady?.Invoke($"Voce pagou aluguel: ${data.rentPrice}");
+                gameHUD?.ShowTemporaryActionMessage($"Aluguel pago: -${data.rentPrice}", 2.2f);
                 OnPurchaseDecision();
                 yield break;
             }
@@ -362,9 +450,28 @@ public class GameController : MonoBehaviour
                 yield return null;
             }
 
+            gameAudioController?.PlayRent();
             onMessageReady?.Invoke($"Voce pagou aluguel: ${data.rentPrice}");
+            gameHUD?.ShowTemporaryActionMessage($"Aluguel pago: -${data.rentPrice}", 2.2f);
             OnPurchaseDecision();
             yield break;
+        }
+
+        if (data.Type == TileType.Start)
+        {
+            CityEventResult startEvent = cityEventSystem != null
+                ? cityEventSystem.ApplyStartBonus(playerStats)
+                : null;
+
+            if (startEvent != null && startEvent.Triggered)
+            {
+                gameAudioController?.PlayEventTone(startEvent.Tone);
+                onMessageReady?.Invoke(startEvent.Message);
+                gameHUD?.ShowTemporaryActionMessage(cityEventSystem.BuildEventSummary(startEvent), 3.4f);
+                RefreshHUD();
+                OnPurchaseDecision();
+                yield break;
+            }
         }
 
         onMessageReady?.Invoke(ApplyNonPurchasableTileImpact(data));
@@ -435,7 +542,59 @@ public class GameController : MonoBehaviour
     /// </summary>
     private void HandleGameOver()
     {
+        pendingGameOver = true;
+        roundManager?.SetCanRoll(false);
         Debug.Log("Jogo encerrado! " + roundManager.CurrentRound + " rodadas jogadas.");
+
+        if (!isBusy && !finalScreenShown)
+        {
+            ShowFinalScreen();
+        }
+    }
+
+    /// <summary>
+    /// Aplica os ganhos e custos recorrentes das propriedades compradas ao fim de cada rodada.
+    /// </summary>
+    private void HandleRoundChanged(int roundNumber)
+    {
+        if (boardManager == null || playerStats == null)
+        {
+            return;
+        }
+
+        int totalRecurringMoney = 0;
+
+        foreach (Tile tile in boardManager.Tiles)
+        {
+            if (tile == null || !tile.IsPurchased || tile.owner != playerStats || tile.Data == null)
+            {
+                continue;
+            }
+
+            totalRecurringMoney += tile.Data.moneyImpact;
+        }
+
+        if (totalRecurringMoney != 0)
+        {
+            playerStats.ApplyImpacts(totalRecurringMoney, 0, 0);
+            Debug.Log($"Renda recorrente da rodada {roundNumber}: {totalRecurringMoney}");
+            gameHUD?.ShowTemporaryActionMessage($"Renda das propriedades: {FormatSignedMoney(totalRecurringMoney)}", 2.8f);
+        }
+
+        if (cityEventSystem != null)
+        {
+            CityEventResult roundEvent = cityEventSystem.TryApplyRoundEvent(roundNumber, playerStats);
+
+            if (roundEvent != null && roundEvent.Triggered)
+            {
+                gameAudioController?.PlayEventTone(roundEvent.Tone);
+                Debug.Log($"Evento de cidade: {roundEvent.Title} | {roundEvent.Message}");
+                gameHUD?.ShowTemporaryActionMessage(cityEventSystem.BuildEventSummary(roundEvent), 3.8f);
+            }
+        }
+
+        RefreshHUD();
+        UpdateRoundHUD();
     }
 
     /// <summary>
@@ -444,7 +603,129 @@ public class GameController : MonoBehaviour
     private void OnPurchaseDecision()
     {
         cameraController?.SetState(CameraState.Idle);
-        roundManager?.SetCanRoll(true);
         RefreshHUD();
+        UpdateRoundHUD();
+
+        if (!pendingGameOver)
+        {
+            roundManager?.SetCanRoll(true);
+        }
+    }
+
+    /// <summary>
+    /// Exibe a tela final com a classificacao da cidade ao termino da partida.
+    /// </summary>
+    private void ShowFinalScreen()
+    {
+        pendingGameOver = false;
+        finalScreenShown = true;
+        isBusy = true;
+        cameraController?.SetState(CameraState.Idle);
+        gameHUD?.SetGameplayUIVisible(false);
+        ShowHUDMessage(string.Empty);
+        ClearHUDDiceResult();
+
+        FinalEvaluationResult result = EndingEvaluator.Evaluate(playerStats);
+        finalResultScreen?.Show(result, playerStats);
+        gameAudioController?.PlayGameOver();
+
+        Debug.Log(
+            $"Final da partida: {result.Title} | " +
+            $"Slot de imagem sugerido: {result.ImageSlotName} | " +
+            $"{EndingEvaluator.BuildStatsSummary(playerStats).Replace('\n', ' ')}");
+    }
+
+    /// <summary>
+    /// Permite abrir rapidamente qualquer tela final no editor sem jogar 12 rodadas.
+    /// </summary>
+    private void HandleDebugEndingPreviewInput()
+    {
+        if (!enableEndingDebugPreview)
+        {
+            return;
+        }
+
+        if (Input.GetKeyDown(KeyCode.Escape) && isPreviewingEnding)
+        {
+            HideDebugEndingPreview();
+            return;
+        }
+
+        if (Input.GetKeyDown(KeyCode.F1))
+        {
+            ShowDebugEndingPreview(CityEndingType.GestorExemplar);
+        }
+        else if (Input.GetKeyDown(KeyCode.F2))
+        {
+            ShowDebugEndingPreview(CityEndingType.BomGestor);
+        }
+        else if (Input.GetKeyDown(KeyCode.F3))
+        {
+            ShowDebugEndingPreview(CityEndingType.GestaoDesequilibrada);
+        }
+        else if (Input.GetKeyDown(KeyCode.F4))
+        {
+            ShowDebugEndingPreview(CityEndingType.MagnataSemEscrupulos);
+        }
+        else if (Input.GetKeyDown(KeyCode.F5))
+        {
+            ShowDebugEndingPreview(CityEndingType.CidadeEmColapso);
+        }
+    }
+
+    /// <summary>
+    /// Abre uma tela final de teste e pausa temporariamente a jogabilidade.
+    /// </summary>
+    private void ShowDebugEndingPreview(CityEndingType endingType)
+    {
+        ResolveReferences();
+
+        FinalEvaluationResult previewResult = EndingEvaluator.CreatePreviewResult(endingType);
+        finalResultScreen?.Show(previewResult, playerStats);
+        gameHUD?.SetGameplayUIVisible(false);
+        isPreviewingEnding = true;
+        isBusy = true;
+    }
+
+    /// <summary>
+    /// Fecha a tela final de teste e devolve a interface normal do jogo.
+    /// </summary>
+    private void HideDebugEndingPreview()
+    {
+        finalResultScreen?.HideImmediate();
+        gameHUD?.SetGameplayUIVisible(true);
+        RefreshHUD();
+        UpdateRoundHUD();
+        isPreviewingEnding = false;
+        isBusy = false;
+    }
+
+    /// <summary>
+    /// Atualiza o texto de rodada na HUD usando os dados atuais do RoundManager.
+    /// </summary>
+    private void UpdateRoundHUD()
+    {
+        if (gameHUD == null || roundManager == null)
+        {
+            return;
+        }
+
+        gameHUD.UpdateRoundInfo(roundManager.CurrentRound, roundManager.MaxRounds);
+    }
+
+    /// <summary>
+    /// Formata um valor financeiro com sinal para os resumos da interface.
+    /// </summary>
+    private string FormatSignedMoney(int value)
+    {
+        return value >= 0 ? $"+${value}" : $"-${Mathf.Abs(value)}";
+    }
+
+    /// <summary>
+    /// Formata qualquer valor inteiro com sinal explicito.
+    /// </summary>
+    private string FormatSignedValue(int value)
+    {
+        return value >= 0 ? $"+{value}" : value.ToString();
     }
 }

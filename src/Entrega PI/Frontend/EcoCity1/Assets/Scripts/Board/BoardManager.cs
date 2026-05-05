@@ -196,19 +196,19 @@ public class BoardManager : MonoBehaviour
             case TileType.Empty:
                 return 0;
             case TileType.Park:
-                return 120;
+                return 90;
             case TileType.Residential:
-                return 160;
+                return 120;
             case TileType.School:
             case TileType.Hospital:
-                return 220;
+                return 170;
             case TileType.SolarPlant:
             case TileType.TreatmentPlant:
-                return 260;
+                return 190;
             case TileType.Factory:
             case TileType.Shopping:
             case TileType.FoodCourt:
-                return 200;
+                return 150;
             default:
                 return 0;
         }
@@ -222,19 +222,19 @@ public class BoardManager : MonoBehaviour
             case TileType.Empty:
                 return 0;
             case TileType.Park:
-                return 20;
+                return 12;
             case TileType.Residential:
-                return 30;
+                return 18;
             case TileType.School:
             case TileType.Hospital:
-                return 35;
+                return 24;
             case TileType.SolarPlant:
             case TileType.TreatmentPlant:
-                return 40;
+                return 26;
             case TileType.Factory:
             case TileType.Shopping:
             case TileType.FoodCourt:
-                return 45;
+                return 28;
             default:
                 return 0;
         }
@@ -245,22 +245,22 @@ public class BoardManager : MonoBehaviour
         switch (type)
         {
             case TileType.Start:
-                return 100;
+                return 60;
             case TileType.Factory:
-                return 35;
+                return 22;
             case TileType.Shopping:
-                return 30;
+                return 18;
             case TileType.FoodCourt:
-                return 20;
+                return 14;
             case TileType.SolarPlant:
-                return 10;
+                return 8;
             case TileType.Residential:
-                return 5;
+                return 10;
             case TileType.TreatmentPlant:
             case TileType.School:
             case TileType.Hospital:
             case TileType.Park:
-                return -10;
+                return -6;
             default:
                 return 0;
         }
@@ -273,22 +273,22 @@ public class BoardManager : MonoBehaviour
             case TileType.Start:
                 return 0;
             case TileType.Park:
-                return 25;
+                return 18;
             case TileType.School:
-                return 20;
+                return 16;
             case TileType.Hospital:
-                return 30;
+                return 22;
             case TileType.Residential:
-                return 10;
+                return 12;
             case TileType.TreatmentPlant:
-                return 15;
+                return 10;
             case TileType.SolarPlant:
                 return 8;
             case TileType.Shopping:
             case TileType.FoodCourt:
                 return 5;
             case TileType.Factory:
-                return -15;
+                return -10;
             default:
                 return 0;
         }
@@ -299,22 +299,22 @@ public class BoardManager : MonoBehaviour
         switch (type)
         {
             case TileType.Factory:
-                return 30;
+                return 18;
             case TileType.Shopping:
-                return 12;
-            case TileType.FoodCourt:
                 return 8;
-            case TileType.Residential:
+            case TileType.FoodCourt:
                 return 6;
+            case TileType.Residential:
+                return 4;
             case TileType.Park:
-                return -20;
+                return -12;
             case TileType.SolarPlant:
-                return -18;
+                return -10;
             case TileType.TreatmentPlant:
-                return -15;
+                return -9;
             case TileType.School:
             case TileType.Hospital:
-                return -5;
+                return -4;
             default:
                 return 0;
         }

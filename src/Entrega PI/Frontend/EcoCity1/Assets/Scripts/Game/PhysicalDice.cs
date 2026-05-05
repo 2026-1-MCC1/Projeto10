@@ -57,6 +57,9 @@ public class PhysicalDice : MonoBehaviour
     private Vector3 defaultScale;
 
     public event Action<float> OnChargePowerChanged;
+    public float CurrentChargePower => waitingForCharge ? Mathf.Max(currentChargePower, isCharging ? 0.01f : 0f) : 0f;
+    public bool IsWaitingForCharge => waitingForCharge;
+    public bool IsCharging => isCharging;
 
     /// <summary>
     /// Inicializa o Rigidbody e o mapeamento das faces do dado.
@@ -97,11 +100,7 @@ public class PhysicalDice : MonoBehaviour
 
         if (!isCharging && (Input.GetKeyDown(KeyCode.Space) || Input.GetKey(KeyCode.Space)))
         {
-            isCharging = true;
-            chargeStartTime = Time.time;
-            currentChargePower = 0f;
-            cameraController?.StartShake(currentChargePower);
-            OnChargePowerChanged?.Invoke(currentChargePower);
+            BeginCharge();
         }
 
         if (Input.GetKey(KeyCode.Space) && isCharging)
@@ -109,7 +108,7 @@ public class PhysicalDice : MonoBehaviour
             currentChargePower = Mathf.Clamp01((Time.time - chargeStartTime) / maxChargeTime);
             cameraController?.UpdateShake(currentChargePower);
             UpdateChargeAudio();
-            OnChargePowerChanged?.Invoke(currentChargePower);
+            OnChargePowerChanged?.Invoke(CurrentChargePower);
         }
 
         if (Input.GetKeyUp(KeyCode.Space) && isCharging)
@@ -185,13 +184,32 @@ public class PhysicalDice : MonoBehaviour
         SetDiceVisible(false);
         rb.useGravity = false;
         rb.isKinematic = true;
-        if (rb.isKinematic == false)
-        {
-            rb.linearVelocity = Vector3.zero;
-            rb.angularVelocity = Vector3.zero;
-        }
+        rb.linearVelocity = Vector3.zero;
+        rb.angularVelocity = Vector3.zero;
 
         OnChargePowerChanged?.Invoke(0f);
+
+        if (Input.GetKey(KeyCode.Space))
+        {
+            BeginCharge();
+        }
+    }
+
+    /// <summary>
+    /// Inicia o carregamento assim que o jogador pressiona ou ja esta segurando o espaco.
+    /// </summary>
+    private void BeginCharge()
+    {
+        if (isCharging)
+        {
+            return;
+        }
+
+        isCharging = true;
+        chargeStartTime = Time.time;
+        currentChargePower = 0f;
+        cameraController?.StartShake(currentChargePower);
+        OnChargePowerChanged?.Invoke(CurrentChargePower);
     }
 
     /// <summary>

@@ -4,7 +4,8 @@ public enum CameraState
 {
     Idle,
     Follow,
-    Focus
+    Focus,
+    Cinematic
 }
 
 public class CameraController : MonoBehaviour
@@ -31,6 +32,12 @@ public class CameraController : MonoBehaviour
     [SerializeField] private float focusAngle = 30f;
     [SerializeField] private float focusSpeed = 3f;
     [SerializeField] private float focusOffsetX = 1.5f;
+    [Header("Estado Cinematic")]
+    [SerializeField] private float cinematicHeight = 3.4f;
+    [SerializeField] private float cinematicDistance = 5.2f;
+    [SerializeField] private float cinematicAngle = 18f;
+    [SerializeField] private float cinematicSpeed = 2.5f;
+    [SerializeField] private float cinematicSideOffset = 1.15f;
     [Header("Screen Shake")]
     [SerializeField] private float shakeIntensity = 0.015f;
     [SerializeField] private float shakeSpeed = 18f;
@@ -74,10 +81,15 @@ public class CameraController : MonoBehaviour
         {
             UpdateFollowState();
         }
-        else
+        else if (currentState == CameraState.Focus)
         {
             transform.position = Vector3.Lerp(transform.position, targetPosition, Time.deltaTime * focusSpeed);
             transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * focusSpeed);
+        }
+        else
+        {
+            transform.position = Vector3.Lerp(transform.position, targetPosition, Time.deltaTime * cinematicSpeed);
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * cinematicSpeed);
         }
 
         basePosition = targetPosition;
@@ -110,7 +122,21 @@ public class CameraController : MonoBehaviour
         if (currentState == CameraState.Focus && focusTarget.HasValue)
         {
             CalculateFocusPosition(focusTarget.Value);
+            return;
         }
+
+        if (currentState == CameraState.Cinematic)
+        {
+            CalculateCinematicPosition();
+        }
+    }
+
+    /// <summary>
+    /// Coloca a camera na posicao cinematica para destacar o jogador e a construcao.
+    /// </summary>
+    public void SetCinematic()
+    {
+        SetState(CameraState.Cinematic);
     }
 
     /// <summary>
@@ -181,6 +207,37 @@ public class CameraController : MonoBehaviour
 
         targetPosition = pos;
         targetRotation = rot;
+    }
+
+    /// <summary>
+    /// Calcula a posicao da camera cinematica atras do jogador olhando para o centro.
+    /// </summary>
+    private void CalculateCinematicPosition()
+    {
+        if (playerPiece == null || boardCenter == null)
+        {
+            return;
+        }
+
+        Vector3 toBoard = (boardCenter.position - playerPiece.position);
+        Vector3 horizontalToBoard = new Vector3(toBoard.x, 0f, toBoard.z).normalized;
+
+        if (horizontalToBoard.sqrMagnitude < 0.001f)
+        {
+            horizontalToBoard = Vector3.forward;
+        }
+
+        Vector3 backwardDirection = -horizontalToBoard;
+        Vector3 sideDirection = Vector3.Cross(Vector3.up, horizontalToBoard).normalized;
+        Vector3 backwardOffset = backwardDirection * cinematicDistance;
+        Vector3 sideOffset = sideDirection * cinematicSideOffset;
+        Vector3 heightOffset = Vector3.up * cinematicHeight;
+        Vector3 tiltOffset = Quaternion.Euler(cinematicAngle, 0f, 0f) * Vector3.back * 0.35f;
+
+        targetPosition = playerPiece.position + backwardOffset + sideOffset + heightOffset + tiltOffset;
+
+        Vector3 lookTarget = boardCenter.position + Vector3.up * 1.15f;
+        targetRotation = Quaternion.LookRotation(lookTarget - targetPosition);
     }
 
     /// <summary>
