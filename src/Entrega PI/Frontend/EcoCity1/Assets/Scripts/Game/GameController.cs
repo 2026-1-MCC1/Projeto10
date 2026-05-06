@@ -1,6 +1,8 @@
 using System.Collections;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class GameController : MonoBehaviour
 {
@@ -26,6 +28,8 @@ public class GameController : MonoBehaviour
     private bool pendingGameOver;
     private bool finalScreenShown;
     private bool isPreviewingEnding;
+    private bool isPaused;
+    private GameObject pausePanelRoot;
 
     /// <summary>
     /// Garante a inscricao nos eventos ao habilitar o controlador.
@@ -53,7 +57,15 @@ public class GameController : MonoBehaviour
         SubscribeToRoundManager();
         SubscribeToPlayerPiece();
 
-        if (boardManager.Tiles.Count == 0)
+        roundManager?.ResetRounds();
+        isBusy = false;
+        pendingDiceResult = 0;
+        hasPendingDiceResult = false;
+        pendingGameOver = false;
+        finalScreenShown = false;
+        isPreviewingEnding = false;
+
+        if (!boardManager.EnsureTilesReady())
         {
             boardManager.GenerateBoard();
         }
@@ -65,6 +77,8 @@ public class GameController : MonoBehaviour
         UpdateRoundHUD();
         ClearHUDDiceResult();
         gameHUD?.ShowTutorialSequence();
+        BuildPauseMenu();
+        SetGameplayCursorState();
     }
 
     /// <summary>
@@ -92,7 +106,20 @@ public class GameController : MonoBehaviour
     {
         HandleDebugEndingPreviewInput();
 
-        if (finalScreenShown)
+        if (finalScreenShown || isPreviewingEnding)
+        {
+            UpdateCursorState();
+            return;
+        }
+
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            TogglePauseMenu();
+        }
+
+        UpdateCursorState();
+
+        if (isPaused)
         {
             return;
         }
@@ -294,6 +321,7 @@ public class GameController : MonoBehaviour
     /// </summary>
     private IEnumerator MoveAndRegister(int result)
     {
+        cameraController?.SetState(CameraState.Follow);
         yield return StartCoroutine(playerPiece.MoveSteps(result));
 
         if (roundManager != null)
@@ -352,6 +380,11 @@ public class GameController : MonoBehaviour
             return;
         }
 
+        if (!boardManager.EnsureTilesReady())
+        {
+            return;
+        }
+
         Tile currentTile = boardManager.GetTileByIndex(playerPiece.CurrentTileIndex);
         Vector3 focusPosition = currentTile != null ? currentTile.transform.position : finalPosition;
         cameraController?.SetState(CameraState.Focus, focusPosition);
@@ -364,6 +397,8 @@ public class GameController : MonoBehaviour
     private IEnumerator ProcessCurrentTile(Tile currentTile, System.Action<string> onMessageReady)
     {
         TileData data = currentTile.Data;
+
+        yield return new WaitForSeconds(0.2f);
 
         if (data == null)
         {
@@ -390,6 +425,7 @@ public class GameController : MonoBehaviour
             propertySpawner?.ShowProperty(currentTile);
             cameraController?.SetCinematic();
             yield return new WaitForSeconds(0.8f);
+            SetInteractiveCursorState();
             purchasePanel.ShowPurchase(currentTile, playerStats, () =>
             {
                 alreadyOwnedAfterDecision = currentTile.IsPurchased && currentTile.owner == playerStats;
@@ -411,17 +447,17 @@ public class GameController : MonoBehaviour
                     $"Impactos: Financeiro {data.moneyImpact} | " +
                     $"Bem-estar {data.wellBeingImpact} | " +
                     $"Poluicao {data.pollutionImpact}");
-                onMessageReady?.Invoke($"Voce comprou {data.Name}.");
+                onMessageReady?.Invoke($"Você comprou {data.Name}.");
                 gameHUD?.ShowTemporaryActionMessage(
-                    $"Compra concluida: {data.Name} | {FormatSignedMoney(data.moneyImpact)}/rodada | Bem-estar {FormatSignedValue(data.wellBeingImpact)} | Poluicao {FormatSignedValue(data.pollutionImpact)}",
+                    $"Compra concluída: {data.Name} | {FormatSignedMoney(data.moneyImpact)}/rodada | Bem-estar {FormatSignedValue(data.wellBeingImpact)} | Poluição {FormatSignedValue(data.pollutionImpact)}",
                     3.4f);
             }
             else
             {
                 propertySpawner?.CancelPurchase();
                 gameAudioController?.PlayPass();
-                onMessageReady?.Invoke($"Voce decidiu nao comprar {data.Name}.");
-                gameHUD?.ShowTemporaryActionMessage($"Voce passou a compra de {data.Name}.", 2.2f);
+                onMessageReady?.Invoke($"Você decidiu não comprar {data.Name}.");
+                gameHUD?.ShowTemporaryActionMessage($"Você passou a compra de {data.Name}.", 2.2f);
             }
 
             yield return new WaitForSeconds(0.6f);
@@ -435,7 +471,7 @@ public class GameController : MonoBehaviour
             {
                 playerStats.SpendMoney(data.rentPrice);
                 gameAudioController?.PlayRent();
-                onMessageReady?.Invoke($"Voce pagou aluguel: ${data.rentPrice}");
+                onMessageReady?.Invoke($"Você pagou aluguel: ${data.rentPrice}");
                 gameHUD?.ShowTemporaryActionMessage($"Aluguel pago: -${data.rentPrice}", 2.2f);
                 OnPurchaseDecision();
                 yield break;
@@ -451,7 +487,7 @@ public class GameController : MonoBehaviour
             }
 
             gameAudioController?.PlayRent();
-            onMessageReady?.Invoke($"Voce pagou aluguel: ${data.rentPrice}");
+            onMessageReady?.Invoke($"Você pagou aluguel: ${data.rentPrice}");
             gameHUD?.ShowTemporaryActionMessage($"Aluguel pago: -${data.rentPrice}", 2.2f);
             OnPurchaseDecision();
             yield break;
@@ -605,6 +641,7 @@ public class GameController : MonoBehaviour
         cameraController?.SetState(CameraState.Idle);
         RefreshHUD();
         UpdateRoundHUD();
+        SetGameplayCursorState();
 
         if (!pendingGameOver)
         {
@@ -624,6 +661,7 @@ public class GameController : MonoBehaviour
         gameHUD?.SetGameplayUIVisible(false);
         ShowHUDMessage(string.Empty);
         ClearHUDDiceResult();
+        SetInteractiveCursorState();
 
         FinalEvaluationResult result = EndingEvaluator.Evaluate(playerStats);
         finalResultScreen?.Show(result, playerStats);
@@ -685,6 +723,7 @@ public class GameController : MonoBehaviour
         gameHUD?.SetGameplayUIVisible(false);
         isPreviewingEnding = true;
         isBusy = true;
+        SetInteractiveCursorState();
     }
 
     /// <summary>
@@ -698,6 +737,235 @@ public class GameController : MonoBehaviour
         UpdateRoundHUD();
         isPreviewingEnding = false;
         isBusy = false;
+        SetGameplayCursorState();
+    }
+
+    /// <summary>
+    /// Cria um menu de pausa simples em runtime.
+    /// </summary>
+    private void BuildPauseMenu()
+    {
+        if (pausePanelRoot != null)
+        {
+            return;
+        }
+
+        Canvas canvas = FindObjectOfType<Canvas>();
+
+        if (canvas == null)
+        {
+            return;
+        }
+
+        pausePanelRoot = new GameObject("PauseMenu", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+        pausePanelRoot.transform.SetParent(canvas.transform, false);
+        RectTransform rootRect = pausePanelRoot.GetComponent<RectTransform>();
+        StretchRect(rootRect);
+        Image overlay = pausePanelRoot.GetComponent<Image>();
+        overlay.color = new Color(0f, 0f, 0f, 0.78f);
+
+        GameObject cardObject = new GameObject("PauseCard", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+        cardObject.transform.SetParent(pausePanelRoot.transform, false);
+        RectTransform cardRect = cardObject.GetComponent<RectTransform>();
+        cardRect.anchorMin = new Vector2(0.35f, 0.20f);
+        cardRect.anchorMax = new Vector2(0.65f, 0.80f);
+        cardRect.offsetMin = Vector2.zero;
+        cardRect.offsetMax = Vector2.zero;
+        Image cardImage = cardObject.GetComponent<Image>();
+        cardImage.color = new Color(0.08f, 0.12f, 0.18f, 0.96f);
+
+        TextMeshProUGUI title = CreatePauseText("PauseTitle", cardObject.transform, "JOGO PAUSADO", 34f, FontStyles.Bold, TextAlignmentOptions.Center);
+        RectTransform titleRect = title.rectTransform;
+        titleRect.anchorMin = new Vector2(0.10f, 0.82f);
+        titleRect.anchorMax = new Vector2(0.90f, 0.94f);
+        titleRect.offsetMin = Vector2.zero;
+        titleRect.offsetMax = Vector2.zero;
+
+        PositionPauseButton(CreatePauseButton(cardObject.transform, "CONTINUAR", new Color(0.24f, 0.67f, 0.30f, 1f), ResumeGameplay), 0.58f);
+        PositionPauseButton(CreatePauseButton(cardObject.transform, "REINICIAR", new Color(0.22f, 0.52f, 0.86f, 1f), RestartCurrentGame), 0.42f);
+        PositionPauseButton(CreatePauseButton(cardObject.transform, "MENU INICIAL", new Color(0.25f, 0.35f, 0.47f, 1f), ReturnToMainMenuFromPause), 0.26f);
+        PositionPauseButton(CreatePauseButton(cardObject.transform, "SAIR DO JOGO", new Color(0.72f, 0.31f, 0.31f, 1f), QuitGameFromPause), 0.10f);
+
+        pausePanelRoot.SetActive(false);
+    }
+
+    /// <summary>
+    /// Alterna o estado do menu de pausa.
+    /// </summary>
+    private void TogglePauseMenu()
+    {
+        if (finalScreenShown || isPreviewingEnding)
+        {
+            return;
+        }
+
+        if (purchasePanel != null && purchasePanel.IsVisible)
+        {
+            return;
+        }
+
+        BuildPauseMenu();
+
+        if (pausePanelRoot == null)
+        {
+            return;
+        }
+
+        isPaused = !isPaused;
+        pausePanelRoot.SetActive(isPaused);
+        Time.timeScale = isPaused ? 0f : 1f;
+        roundManager?.SetCanRoll(!isPaused && !pendingGameOver);
+        UpdateCursorState();
+    }
+
+    /// <summary>
+    /// Retoma a partida a partir do menu de pausa.
+    /// </summary>
+    private void ResumeGameplay()
+    {
+        isPaused = false;
+
+        if (pausePanelRoot != null)
+        {
+            pausePanelRoot.SetActive(false);
+        }
+
+        Time.timeScale = 1f;
+        roundManager?.SetCanRoll(!pendingGameOver);
+        SetGameplayCursorState();
+    }
+
+    /// <summary>
+    /// Reinicia a cena atual.
+    /// </summary>
+    private void RestartCurrentGame()
+    {
+        Time.timeScale = 1f;
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+    }
+
+    /// <summary>
+    /// Volta ao menu principal.
+    /// </summary>
+    private void ReturnToMainMenuFromPause()
+    {
+        Time.timeScale = 1f;
+        SceneManager.LoadScene("MainMenu");
+    }
+
+    /// <summary>
+    /// Encerra o jogo ou o Play Mode.
+    /// </summary>
+    private void QuitGameFromPause()
+    {
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+#else
+        Application.Quit();
+#endif
+    }
+
+    /// <summary>
+    /// Atualiza visibilidade do cursor conforme o contexto atual.
+    /// </summary>
+    private void UpdateCursorState()
+    {
+        bool shouldShowCursor =
+            isPaused ||
+            finalScreenShown ||
+            isPreviewingEnding ||
+            (purchasePanel != null && purchasePanel.IsVisible);
+
+        if (shouldShowCursor)
+        {
+            SetInteractiveCursorState();
+        }
+        else
+        {
+            SetGameplayCursorState();
+        }
+    }
+
+    /// <summary>
+    /// Esconde o cursor durante a jogabilidade.
+    /// </summary>
+    private void SetGameplayCursorState()
+    {
+        Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.None;
+    }
+
+    /// <summary>
+    /// Mostra o cursor quando a interface precisa de clique.
+    /// </summary>
+    private void SetInteractiveCursorState()
+    {
+        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.None;
+    }
+
+    /// <summary>
+    /// Cria um botao do menu de pausa.
+    /// </summary>
+    private RectTransform CreatePauseButton(Transform parent, string label, Color color, UnityEngine.Events.UnityAction callback)
+    {
+        GameObject buttonObject = new GameObject(label.Replace(" ", string.Empty) + "Button", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(Button));
+        buttonObject.transform.SetParent(parent, false);
+        Image image = buttonObject.GetComponent<Image>();
+        image.color = color;
+        Button button = buttonObject.GetComponent<Button>();
+        ColorBlock colors = button.colors;
+        colors.normalColor = color;
+        colors.highlightedColor = color * 1.08f;
+        colors.pressedColor = color * 0.92f;
+        colors.selectedColor = color;
+        button.colors = colors;
+        button.onClick.RemoveAllListeners();
+        button.onClick.AddListener(callback);
+
+        TextMeshProUGUI labelText = CreatePauseText("Label", buttonObject.transform, label, 20f, FontStyles.Bold, TextAlignmentOptions.Center);
+        StretchRect(labelText.rectTransform);
+        return buttonObject.GetComponent<RectTransform>();
+    }
+
+    /// <summary>
+    /// Cria um texto TMP do menu de pausa.
+    /// </summary>
+    private TextMeshProUGUI CreatePauseText(string objectName, Transform parent, string value, float fontSize, FontStyles fontStyle, TextAlignmentOptions alignment)
+    {
+        GameObject textObject = new GameObject(objectName, typeof(RectTransform), typeof(TextMeshProUGUI));
+        textObject.transform.SetParent(parent, false);
+        TextMeshProUGUI text = textObject.GetComponent<TextMeshProUGUI>();
+        text.text = value;
+        text.fontSize = fontSize;
+        text.fontStyle = fontStyle;
+        text.alignment = alignment;
+        text.color = Color.white;
+        text.enableWordWrapping = true;
+        return text;
+    }
+
+    /// <summary>
+    /// Posiciona um botao no cartao de pausa.
+    /// </summary>
+    private void PositionPauseButton(RectTransform rectTransform, float yMin)
+    {
+        rectTransform.anchorMin = new Vector2(0.12f, yMin);
+        rectTransform.anchorMax = new Vector2(0.88f, yMin + 0.10f);
+        rectTransform.offsetMin = Vector2.zero;
+        rectTransform.offsetMax = Vector2.zero;
+    }
+
+    /// <summary>
+    /// Estica um rect para preencher seu pai.
+    /// </summary>
+    private void StretchRect(RectTransform rectTransform)
+    {
+        rectTransform.anchorMin = Vector2.zero;
+        rectTransform.anchorMax = Vector2.one;
+        rectTransform.offsetMin = Vector2.zero;
+        rectTransform.offsetMax = Vector2.zero;
+        rectTransform.localScale = Vector3.one;
     }
 
     /// <summary>

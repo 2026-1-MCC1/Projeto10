@@ -1,6 +1,7 @@
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class FinalResultScreen : MonoBehaviour
 {
@@ -17,6 +18,12 @@ public class FinalResultScreen : MonoBehaviour
     [SerializeField] private TextMeshProUGUI classificationText;
     [SerializeField] private TextMeshProUGUI messageText;
     [SerializeField] private TextMeshProUGUI statsSummaryText;
+
+    [Header("Botoes")]
+    [SerializeField] private Button restartButton;
+    [SerializeField] private Button menuButton;
+    [SerializeField] private TextMeshProUGUI restartButtonText;
+    [SerializeField] private TextMeshProUGUI menuButtonText;
 
     [Header("Imagens por Final")]
     [SerializeField] private Sprite gestorExemplarSprite;
@@ -54,6 +61,8 @@ public class FinalResultScreen : MonoBehaviour
         classificationText.color = result.AccentColor;
         messageText.text = result.Message;
         statsSummaryText.text = EndingEvaluator.BuildStatsSummary(stats);
+        restartButtonText.text = "JOGAR NOVAMENTE";
+        menuButtonText.text = "VOLTAR AO MENU";
 
         accentBar.color = result.AccentColor;
 
@@ -63,6 +72,8 @@ public class FinalResultScreen : MonoBehaviour
 
         panelRoot.SetActive(true);
         panelRoot.transform.SetAsLastSibling();
+        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.None;
     }
 
     /// <summary>
@@ -156,6 +167,18 @@ public class FinalResultScreen : MonoBehaviour
         statsSummaryText = CreateText("StatsSummaryText", statsPanel.transform, 20f, FontStyles.Bold, TextAlignmentOptions.TopLeft);
         SetStretch(statsSummaryText.rectTransform, 18f, 18f, 16f, 16f);
 
+        restartButton = CreateButton("RestartButton", cardBackground.transform, new Color(0.24f, 0.67f, 0.30f, 1f));
+        SetAnchoredBlock(restartButton.GetComponent<RectTransform>(), 0.52f, 0.78f, 0.18f, 0.08f);
+        restartButton.onClick.RemoveAllListeners();
+        restartButton.onClick.AddListener(RestartGame);
+        restartButtonText = CreateButtonLabel("RestartButtonText", restartButton.transform, "JOGAR NOVAMENTE");
+
+        menuButton = CreateButton("MenuButton", cardBackground.transform, new Color(0.25f, 0.35f, 0.47f, 1f));
+        SetAnchoredBlock(menuButton.GetComponent<RectTransform>(), 0.73f, 0.78f, 0.18f, 0.08f);
+        menuButton.onClick.RemoveAllListeners();
+        menuButton.onClick.AddListener(ReturnToMainMenu);
+        menuButtonText = CreateButtonLabel("MenuButtonText", menuButton.transform, "VOLTAR AO MENU");
+
         panelRoot = backgroundOverlay.gameObject;
         runtimeBuilt = true;
     }
@@ -195,6 +218,10 @@ public class FinalResultScreen : MonoBehaviour
         classificationText = null;
         messageText = null;
         statsSummaryText = null;
+        restartButton = null;
+        menuButton = null;
+        restartButtonText = null;
+        menuButtonText = null;
     }
 
     /// <summary>
@@ -222,6 +249,37 @@ public class FinalResultScreen : MonoBehaviour
         text.alignment = alignment;
         text.enableWordWrapping = true;
         text.color = Color.white;
+        return text;
+    }
+
+    /// <summary>
+    /// Cria um botao visual da tela final.
+    /// </summary>
+    private Button CreateButton(string objectName, Transform parent, Color color)
+    {
+        GameObject buttonObject = new GameObject(objectName, typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(Button));
+        buttonObject.transform.SetParent(parent, false);
+        Image image = buttonObject.GetComponent<Image>();
+        image.color = color;
+        Button button = buttonObject.GetComponent<Button>();
+        ColorBlock colors = button.colors;
+        colors.normalColor = color;
+        colors.highlightedColor = color * 1.08f;
+        colors.pressedColor = color * 0.92f;
+        colors.selectedColor = color;
+        colors.disabledColor = new Color(color.r, color.g, color.b, 0.45f);
+        button.colors = colors;
+        return button;
+    }
+
+    /// <summary>
+    /// Cria o texto interno de um botao.
+    /// </summary>
+    private TextMeshProUGUI CreateButtonLabel(string objectName, Transform parent, string label)
+    {
+        TextMeshProUGUI text = CreateText(objectName, parent, 18f, FontStyles.Bold, TextAlignmentOptions.Center);
+        text.text = label;
+        StretchFull(text.rectTransform);
         return text;
     }
 
@@ -291,5 +349,23 @@ public class FinalResultScreen : MonoBehaviour
         rectTransform.offsetMax = Vector2.zero;
         rectTransform.pivot = new Vector2(0.5f, 0.5f);
         rectTransform.localScale = Vector3.one;
+    }
+
+    /// <summary>
+    /// Recarrega a cena atual para comecar uma nova partida.
+    /// </summary>
+    private void RestartGame()
+    {
+        Time.timeScale = 1f;
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+    }
+
+    /// <summary>
+    /// Retorna o jogador para a cena do menu principal.
+    /// </summary>
+    private void ReturnToMainMenu()
+    {
+        Time.timeScale = 1f;
+        SceneManager.LoadScene("MainMenu");
     }
 }

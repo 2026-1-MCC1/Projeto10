@@ -73,7 +73,7 @@ public class GameHUD : MonoBehaviour
 
         if (instructionLabel != null)
         {
-            instructionLabel.text = "SEGURE [ESPACO] PARA CARREGAR";
+            instructionLabel.text = "SEGURE [ESPAÇO] PARA CARREGAR";
         }
 
         if (powerFillImage != null)
@@ -307,7 +307,7 @@ public class GameHUD : MonoBehaviour
         {
             if (power == 0f)
             {
-                instructionLabel.text = "SEGURE [ESPACO] PARA CARREGAR";
+                instructionLabel.text = "SEGURE [ESPAÇO] PARA CARREGAR";
             }
             else if (power < 0.4f)
             {
@@ -315,11 +315,11 @@ public class GameHUD : MonoBehaviour
             }
             else if (power < 0.75f)
             {
-                instructionLabel.text = "BOA FORCA!";
+                instructionLabel.text = "BOA FORÇA!";
             }
             else
             {
-                instructionLabel.text = "FORCA MAXIMA!";
+                instructionLabel.text = "FORÇA MÁXIMA!";
             }
         }
 
@@ -683,9 +683,9 @@ public class GameHUD : MonoBehaviour
 
         tutorialPanelRoot.SetActive(true);
         tutorialText.text =
-            "Segure ESPACO para carregar o dado.\n" +
+            "Segure ESPAÇO para carregar o dado.\n" +
             "Compre propriedades para desenvolver a cidade.\n" +
-            "Equilibre dinheiro, bem-estar e poluicao.";
+            "Equilibre dinheiro, bem-estar e poluição.";
 
         yield return new WaitForSeconds(6f);
 

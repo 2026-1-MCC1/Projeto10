@@ -9,6 +9,11 @@ public class PropertySpawner : MonoBehaviour
     [SerializeField] private GameObject prefabResidential;
     [SerializeField] private GameObject prefabPark;
     [SerializeField] private GameObject prefabCommercial;
+    [SerializeField] private GameObject prefabTreatmentPlant;
+    [SerializeField] private GameObject prefabSchool;
+    [SerializeField] private GameObject prefabHospital;
+    [SerializeField] private GameObject prefabSolarPlant;
+    [SerializeField] private GameObject prefabFoodCourt;
     [SerializeField] private GameObject prefabSpecial;
 
     [Header("Posições")]
@@ -18,6 +23,7 @@ public class PropertySpawner : MonoBehaviour
     [SerializeField] private float riseDuration = 0.7f;
     [SerializeField] private float bounceAmount = 0.12f;
     [SerializeField] private float fallDuration = 0.4f;
+    [SerializeField] private float previewRotationSpeed = 28f;
 
     [Header("Escala Automática")]
     [SerializeField] private float previewFootprint = 1.45f;
@@ -44,6 +50,19 @@ public class PropertySpawner : MonoBehaviour
     }
 
     /// <summary>
+    /// Mantem a construcao de preview girando suavemente enquanto ela esta no centro.
+    /// </summary>
+    private void Update()
+    {
+        if (currentBuilding == null || buildingPurchased)
+        {
+            return;
+        }
+
+        currentBuilding.transform.Rotate(Vector3.up, previewRotationSpeed * Time.deltaTime, Space.World);
+    }
+
+    /// <summary>
     /// Exibe a construção candidata no centro do tabuleiro para a propriedade atual.
     /// </summary>
     public void ShowProperty(Tile tile)
@@ -67,21 +86,16 @@ public class PropertySpawner : MonoBehaviour
             currentBuilding = null;
         }
 
-        GameObject prefab = GetPrefabForType(tile.Data.Type);
+        currentBuilding = CreateBuildingForType(tile.Data.Type);
 
-        if (prefab != null)
+        if (currentBuilding == null)
         {
-            currentBuilding = Instantiate(prefab, boardCenter.position, Quaternion.identity);
-            currentBuilding.name = $"Preview_{tile.Data.Name}";
-        }
-        else
-        {
-            currentBuilding = CreatePrimitiveBuilding(tile.Data.Type);
-            currentBuilding.transform.position = boardCenter.position;
-            currentBuilding.name = $"Preview_{tile.Data.Name}";
+            return;
         }
 
         currentBuilding.transform.SetParent(transform, true);
+        currentBuilding.transform.position = boardCenter.position;
+        currentBuilding.name = $"Preview_{tile.Data.Name}";
         currentFinalScale = CalculateFittedScale(currentBuilding, previewFootprint, previewMaxHeight);
         placedFinalScale = CalculateFittedScale(currentBuilding, tileFootprint, tileMaxHeight);
         currentBuilding.transform.localScale = currentFinalScale;
@@ -236,11 +250,66 @@ public class PropertySpawner : MonoBehaviour
         prefabMap[TileType.Residential] = prefabResidential;
         prefabMap[TileType.Park] = prefabPark;
         prefabMap[TileType.Shopping] = prefabCommercial;
-        prefabMap[TileType.FoodCourt] = prefabCommercial;
-        prefabMap[TileType.TreatmentPlant] = prefabSpecial;
-        prefabMap[TileType.School] = prefabSpecial;
-        prefabMap[TileType.Hospital] = prefabSpecial;
-        prefabMap[TileType.SolarPlant] = prefabSpecial;
+        prefabMap[TileType.FoodCourt] = prefabFoodCourt != null ? prefabFoodCourt : prefabCommercial;
+        prefabMap[TileType.TreatmentPlant] = prefabTreatmentPlant;
+        prefabMap[TileType.School] = prefabSchool != null ? prefabSchool : prefabSpecial;
+        prefabMap[TileType.Hospital] = prefabHospital != null ? prefabHospital : prefabSpecial;
+        prefabMap[TileType.SolarPlant] = prefabSolarPlant;
+    }
+
+    /// <summary>
+    /// Cria a construcao apropriada para o tipo informado, usando prefab quando existir e fallback procedural quando necessario.
+    /// </summary>
+    private GameObject CreateBuildingForType(TileType type)
+    {
+        if (type == TileType.SolarPlant)
+        {
+            return prefabSolarPlant != null ? CreateSolarPanelCluster() : CreatePrimitiveBuilding(type);
+        }
+
+        if (type == TileType.TreatmentPlant && prefabTreatmentPlant == null)
+        {
+            return CreatePrimitiveBuilding(type);
+        }
+
+        GameObject prefab = GetPrefabForType(type);
+
+        if (prefab != null)
+        {
+            return Instantiate(prefab, boardCenter.position, Quaternion.identity);
+        }
+
+        return CreatePrimitiveBuilding(type);
+    }
+
+    /// <summary>
+    /// Monta um pequeno conjunto de paineis solares quando so existe um prefab unitario.
+    /// </summary>
+    private GameObject CreateSolarPanelCluster()
+    {
+        GameObject root = new GameObject("Prop_SolarPlantCluster");
+        root.transform.SetParent(transform, false);
+
+        Vector3[] localPositions =
+        {
+            new Vector3(-0.32f, 0f, -0.12f),
+            new Vector3(0f, 0.03f, 0.08f),
+            new Vector3(0.32f, 0f, -0.12f)
+        };
+
+        float[] yRotations = { -18f, 0f, 18f };
+
+        for (int index = 0; index < localPositions.Length; index++)
+        {
+            GameObject panel = Instantiate(prefabSolarPlant, root.transform);
+            panel.name = $"SolarPanel_{index + 1}";
+            panel.transform.localPosition = localPositions[index];
+            panel.transform.localRotation = Quaternion.Euler(0f, yRotations[index], 0f);
+            panel.transform.localScale = Vector3.one * 0.85f;
+        }
+
+        CreatePart(root.transform, PrimitiveType.Cube, new Vector3(0f, 0.02f, 0f), new Vector3(1.05f, 0.04f, 0.75f), new Color(0.42f, 0.62f, 0.36f));
+        return root;
     }
 
     /// <summary>
@@ -266,6 +335,18 @@ public class PropertySpawner : MonoBehaviour
             case TileType.Shopping:
             case TileType.FoodCourt:
                 BuildCommercial(root.transform);
+                break;
+            case TileType.TreatmentPlant:
+                BuildTreatmentPlant(root.transform);
+                break;
+            case TileType.School:
+                BuildSchool(root.transform);
+                break;
+            case TileType.Hospital:
+                BuildHospital(root.transform);
+                break;
+            case TileType.SolarPlant:
+                BuildSolarPlant(root.transform);
                 break;
             default:
                 BuildSpecial(root.transform);
@@ -365,6 +446,65 @@ public class PropertySpawner : MonoBehaviour
         CreatePart(root, PrimitiveType.Cube, new Vector3(0f, 0.35f, 0f), new Vector3(0.55f, 0.55f, 0.55f), new Color(1f, 0.8f, 0.01f));
         CreatePart(root, PrimitiveType.Cube, new Vector3(0f, 0.7f, 0.28f), new Vector3(0.4f, 0.12f, 0.02f), new Color(0.9f, 0.22f, 0.21f));
         CreatePart(root, PrimitiveType.Cube, new Vector3(0f, 0.4f, 0.28f), new Vector3(0.35f, 0.2f, 0.02f), new Color(0.7f, 0.9f, 0.99f));
+    }
+
+    /// <summary>
+    /// Monta uma estacao de tratamento simples com tanques, bloco tecnico e tubulacoes.
+    /// </summary>
+    private void BuildTreatmentPlant(Transform root)
+    {
+        CreatePart(root, PrimitiveType.Cube, new Vector3(0f, 0.04f, 0f), new Vector3(0.9f, 0.08f, 0.75f), new Color(0.56f, 0.67f, 0.72f));
+        CreatePart(root, PrimitiveType.Cylinder, new Vector3(-0.22f, 0.26f, 0f), new Vector3(0.2f, 0.22f, 0.2f), new Color(0.72f, 0.8f, 0.84f));
+        CreatePart(root, PrimitiveType.Cylinder, new Vector3(0.22f, 0.26f, 0f), new Vector3(0.2f, 0.22f, 0.2f), new Color(0.72f, 0.8f, 0.84f));
+        CreatePart(root, PrimitiveType.Cube, new Vector3(0f, 0.34f, -0.18f), new Vector3(0.28f, 0.36f, 0.2f), new Color(0.43f, 0.53f, 0.57f));
+        CreatePart(root, PrimitiveType.Cylinder, new Vector3(0f, 0.38f, 0.06f), new Vector3(0.06f, 0.3f, 0.06f), new Color(0.35f, 0.4f, 0.43f), new Vector3(90f, 0f, 0f));
+        CreatePart(root, PrimitiveType.Cylinder, new Vector3(0.22f, 0.55f, 0f), new Vector3(0.04f, 0.16f, 0.04f), new Color(0.27f, 0.31f, 0.33f));
+        CreatePart(root, PrimitiveType.Cube, new Vector3(-0.32f, 0.08f, 0.24f), new Vector3(0.14f, 0.08f, 0.14f), new Color(0.2f, 0.55f, 0.68f));
+    }
+
+    /// <summary>
+    /// Monta uma pequena escola com predio central e entrada destacada.
+    /// </summary>
+    private void BuildSchool(Transform root)
+    {
+        CreatePart(root, PrimitiveType.Cube, new Vector3(0f, 0.05f, 0f), new Vector3(0.82f, 0.1f, 0.7f), new Color(0.94f, 0.84f, 0.52f));
+        CreatePart(root, PrimitiveType.Cube, new Vector3(0f, 0.35f, 0f), new Vector3(0.6f, 0.45f, 0.48f), new Color(0.96f, 0.92f, 0.74f));
+        CreatePart(root, PrimitiveType.Cube, new Vector3(0f, 0.62f, 0f), new Vector3(0.66f, 0.05f, 0.54f), new Color(0.8f, 0.25f, 0.21f));
+        CreatePart(root, PrimitiveType.Cube, new Vector3(0f, 0.18f, 0.25f), new Vector3(0.14f, 0.2f, 0.04f), new Color(0.33f, 0.21f, 0.16f));
+        CreatePart(root, PrimitiveType.Cube, new Vector3(0f, 0.48f, 0.25f), new Vector3(0.3f, 0.12f, 0.04f), new Color(0.45f, 0.67f, 0.85f));
+    }
+
+    /// <summary>
+    /// Monta um pequeno hospital com bloco principal e cruz frontal.
+    /// </summary>
+    private void BuildHospital(Transform root)
+    {
+        CreatePart(root, PrimitiveType.Cube, new Vector3(0f, 0.05f, 0f), new Vector3(0.84f, 0.1f, 0.72f), new Color(0.88f, 0.9f, 0.94f));
+        CreatePart(root, PrimitiveType.Cube, new Vector3(0f, 0.38f, 0f), new Vector3(0.58f, 0.55f, 0.52f), new Color(0.97f, 0.98f, 0.99f));
+        CreatePart(root, PrimitiveType.Cube, new Vector3(0f, 0.7f, 0f), new Vector3(0.64f, 0.05f, 0.58f), new Color(0.64f, 0.72f, 0.8f));
+        CreatePart(root, PrimitiveType.Cube, new Vector3(0f, 0.4f, 0.27f), new Vector3(0.1f, 0.28f, 0.03f), new Color(0.9f, 0.24f, 0.21f));
+        CreatePart(root, PrimitiveType.Cube, new Vector3(0f, 0.4f, 0.27f), new Vector3(0.26f, 0.1f, 0.03f), new Color(0.9f, 0.24f, 0.21f));
+    }
+
+    /// <summary>
+    /// Monta uma pequena usina solar com varios paineis sobre uma base de gramado tecnico.
+    /// </summary>
+    private void BuildSolarPlant(Transform root)
+    {
+        CreatePart(root, PrimitiveType.Cube, new Vector3(0f, 0.02f, 0f), new Vector3(0.95f, 0.04f, 0.72f), new Color(0.4f, 0.62f, 0.36f));
+        BuildSolarPanel(root, new Vector3(-0.26f, 0.12f, 0f), -18f);
+        BuildSolarPanel(root, new Vector3(0f, 0.15f, 0.08f), 0f);
+        BuildSolarPanel(root, new Vector3(0.26f, 0.12f, 0f), 18f);
+    }
+
+    /// <summary>
+    /// Cria um painel solar simples inclinado sobre dois suportes.
+    /// </summary>
+    private void BuildSolarPanel(Transform root, Vector3 basePosition, float yRotation)
+    {
+        CreatePart(root, PrimitiveType.Cylinder, basePosition + new Vector3(-0.08f, 0.09f, 0f), new Vector3(0.015f, 0.1f, 0.015f), new Color(0.45f, 0.49f, 0.52f));
+        CreatePart(root, PrimitiveType.Cylinder, basePosition + new Vector3(0.08f, 0.09f, 0f), new Vector3(0.015f, 0.1f, 0.015f), new Color(0.45f, 0.49f, 0.52f));
+        CreatePart(root, PrimitiveType.Cube, basePosition + new Vector3(0f, 0.2f, 0f), new Vector3(0.28f, 0.02f, 0.18f), new Color(0.21f, 0.44f, 0.72f), new Vector3(25f, yRotation, 0f));
     }
 
     /// <summary>

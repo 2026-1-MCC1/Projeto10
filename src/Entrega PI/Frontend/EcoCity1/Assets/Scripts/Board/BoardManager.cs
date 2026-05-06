@@ -12,6 +12,7 @@ public class BoardManager : MonoBehaviour
     [SerializeField] private float tileHeight = 0f;
     [SerializeField] private bool generateOnStart = true;
     [SerializeField] private TileVisualManager visualManager;
+    [SerializeField] private BoardEnvironmentVisual environmentVisual;
 
     public List<Tile> Tiles { get; } = new List<Tile>();
 
@@ -31,6 +32,25 @@ public class BoardManager : MonoBehaviour
         }
 
         return Tiles[index];
+    }
+
+    /// <summary>
+    /// Garante que o tabuleiro jogável exista em runtime.
+    /// </summary>
+    public bool EnsureTilesReady()
+    {
+        if (Tiles.Count > 0)
+        {
+            return true;
+        }
+
+        if (Application.isPlaying)
+        {
+            GenerateBoard();
+            return Tiles.Count > 0;
+        }
+
+        return false;
     }
 
     [ContextMenu("Generate Board")]
@@ -62,7 +82,22 @@ public class BoardManager : MonoBehaviour
             Debug.LogError($"O tabuleiro deveria ter {ExpectedTileCount} tiles, mas gerou {Tiles.Count}.", this);
         }
 
+        EnsureEnvironmentVisual();
         visualManager?.Initialize(Tiles);
+        environmentVisual?.Initialize(Tiles, tileSpacing);
+    }
+
+    [ContextMenu("Refresh Environment")]
+    public void RefreshEnvironment()
+    {
+        if (Tiles.Count == 0)
+        {
+            Debug.LogWarning("Atualize o cenário apenas com o tabuleiro já gerado em Play.", this);
+            return;
+        }
+
+        EnsureEnvironmentVisual();
+        environmentVisual?.Initialize(Tiles, tileSpacing);
     }
 
     private void ClearBoard()
@@ -84,29 +119,46 @@ public class BoardManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Garante que exista um gerenciador visual para o cenário em volta do tabuleiro.
+    /// </summary>
+    private void EnsureEnvironmentVisual()
+    {
+        if (environmentVisual != null)
+        {
+            return;
+        }
+
+        environmentVisual = FindObjectOfType<BoardEnvironmentVisual>();
+
+        if (environmentVisual != null)
+        {
+            return;
+        }
+
+        GameObject visualObject = new GameObject("BoardEnvironmentVisual");
+        environmentVisual = visualObject.AddComponent<BoardEnvironmentVisual>();
+    }
+
     private List<Vector2Int> GenerateBoardPath()
     {
         List<Vector2Int> path = new List<Vector2Int>(ExpectedTileCount);
 
-        // 1. Comeca no canto inferior esquerdo e percorre a base para a direita.
         for (int x = 0; x < GridSize; x++)
         {
             path.Add(new Vector2Int(x, 0));
         }
 
-        // 2. Sobe pela borda direita sem repetir o canto inferior direito.
         for (int z = 1; z < GridSize; z++)
         {
             path.Add(new Vector2Int(GridSize - 1, z));
         }
 
-        // 3. Vai pela borda superior da direita para a esquerda.
         for (int x = GridSize - 2; x >= 0; x--)
         {
             path.Add(new Vector2Int(x, GridSize - 1));
         }
 
-        // 4. Desce pela borda esquerda sem repetir os cantos.
         for (int z = GridSize - 2; z > 0; z--)
         {
             path.Add(new Vector2Int(0, z));
@@ -167,7 +219,7 @@ public class BoardManager : MonoBehaviour
 
         return new TileData
         {
-            Name = GetTileName(type, index),
+            Name = GetTileName(type),
             Type = type,
             purchasePrice = GetTilePrice(type),
             rentPrice = GetTileRent(type),
@@ -178,14 +230,33 @@ public class BoardManager : MonoBehaviour
         };
     }
 
-    private string GetTileName(TileType type, int index)
+    private string GetTileName(TileType type)
     {
-        if (type == TileType.Start)
+        switch (type)
         {
-            return "Start";
+            case TileType.Start:
+                return "Inicio";
+            case TileType.Factory:
+                return "Fabrica";
+            case TileType.Park:
+                return "Parque";
+            case TileType.Residential:
+                return "Residencial";
+            case TileType.Shopping:
+                return "Comercio";
+            case TileType.TreatmentPlant:
+                return "Tratamento";
+            case TileType.School:
+                return "Escola";
+            case TileType.Hospital:
+                return "Hospital";
+            case TileType.SolarPlant:
+                return "Usina Solar";
+            case TileType.FoodCourt:
+                return "Praca de Alimentacao";
+            default:
+                return "Especial";
         }
-
-        return $"{type}_{index}";
     }
 
     private int GetTilePrice(TileType type)
@@ -325,7 +396,7 @@ public class BoardManager : MonoBehaviour
         switch (type)
         {
             case TileType.Factory:
-                return "Gera renda mas aumenta a poluicao da cidade.";
+                return "Gera renda, mas aumenta a poluicao da cidade.";
             case TileType.Residential:
                 return "Moradia para a populacao com crescimento moderado.";
             case TileType.Park:

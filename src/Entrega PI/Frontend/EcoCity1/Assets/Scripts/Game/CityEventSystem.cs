@@ -51,7 +51,7 @@ public class CityEventSystem : MonoBehaviour
         return new CityEventResult(
             true,
             "Repasse Municipal",
-            $"A prefeitura recebeu um novo repasse. +${startBonusMoney}, bem-estar +{startBonusWellBeing} e poluicao {startBonusPollution}.",
+            $"A prefeitura recebeu um novo repasse. +${startBonusMoney}, bem-estar +{startBonusWellBeing} e poluição {startBonusPollution}.",
             startBonusMoney,
             startBonusWellBeing,
             startBonusPollution,
@@ -73,8 +73,8 @@ public class CityEventSystem : MonoBehaviour
             case 3:
                 return ApplyEvent(
                     playerStats,
-                    "Mutirao de Limpeza",
-                    "Moradores e voluntarios organizaram uma limpeza urbana que melhorou a cidade.",
+                    "Mutirão de Limpeza",
+                    "Moradores e voluntários organizaram uma limpeza urbana que melhorou a cidade.",
                     -10,
                     8,
                     -12,
@@ -84,7 +84,7 @@ public class CityEventSystem : MonoBehaviour
                 return ApplyEvent(
                     playerStats,
                     "Incentivo Verde",
-                    "Um programa estadual liberou verba para energia limpa e melhorias sustentaveis.",
+                    "Um programa estadual liberou verba para energia limpa e melhorias sustentáveis.",
                     90,
                     4,
                     -8,
@@ -94,7 +94,7 @@ public class CityEventSystem : MonoBehaviour
                 return ApplyEvent(
                     playerStats,
                     "Festival da Cidade",
-                    "O festival trouxe alegria e movimento economico, mas deixou impactos temporarios na limpeza urbana.",
+                    "O festival trouxe alegria e movimento econômico, mas deixou impactos temporários na limpeza urbana.",
                     35,
                     12,
                     6,
@@ -105,7 +105,7 @@ public class CityEventSystem : MonoBehaviour
                 {
                     return ApplyEvent(
                         playerStats,
-                        "Crise de Poluicao",
+                        "Crise de Poluição",
                         "A cidade entrou em alerta ambiental e foi preciso gastar recursos emergenciais.",
                         -45,
                         -10,
@@ -117,8 +117,8 @@ public class CityEventSystem : MonoBehaviour
                 {
                     return ApplyEvent(
                         playerStats,
-                        "Mobilizacao Comunitaria",
-                        "A comunidade se uniu para recuperar espacos urbanos e apoiar a populacao.",
+                        "Mobilização Comunitária",
+                        "A comunidade se uniu para recuperar espaços urbanos e apoiar a população.",
                         -20,
                         12,
                         -4,
@@ -143,7 +143,7 @@ public class CityEventSystem : MonoBehaviour
             $"{result.Title}: " +
             $"{FormatSignedMoney(result.MoneyDelta)} | " +
             $"Bem-estar {FormatSignedValue(result.WellBeingDelta)} | " +
-            $"Poluicao {FormatSignedValue(result.PollutionDelta)}";
+            $"Poluição {FormatSignedValue(result.PollutionDelta)}";
     }
 
     /// <summary>

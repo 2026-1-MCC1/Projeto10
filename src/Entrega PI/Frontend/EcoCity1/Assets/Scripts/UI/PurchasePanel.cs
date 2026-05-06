@@ -31,6 +31,11 @@ public class PurchasePanel : MonoBehaviour
     private Action onDecisionMade;
 
     /// <summary>
+    /// Indica se o painel de compra esta visivel.
+    /// </summary>
+    public bool IsVisible => panelRoot != null && panelRoot.activeSelf;
+
+    /// <summary>
     /// Prepara o painel e conecta os eventos dos botoes.
     /// </summary>
     private void Awake()
@@ -138,7 +143,7 @@ public class PurchasePanel : MonoBehaviour
         playerStats = stats;
         onDecisionMade = callback;
         stats.SpendMoney(tile.Data.rentPrice);
-        StartCoroutine(ShowQuickMessage("Voce pagou aluguel: $" + tile.Data.rentPrice));
+        StartCoroutine(ShowQuickMessage("Você pagou aluguel: $" + tile.Data.rentPrice));
     }
 
     /// <summary>
@@ -238,8 +243,8 @@ public class PurchasePanel : MonoBehaviour
         {
             bool increasesPollution = data.pollutionImpact >= 0;
             pollutionText.text = increasesPollution
-                ? $"Poluicao: +{data.pollutionImpact}"
-                : $"Poluicao: {data.pollutionImpact}";
+                ? $"Poluição: +{data.pollutionImpact}"
+                : $"Poluição: {data.pollutionImpact}";
             pollutionText.color = increasesPollution ? new Color(0.65f, 0.72f, 0.72f) : Color.green;
         }
     }
