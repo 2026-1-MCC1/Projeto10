@@ -14,15 +14,15 @@ public static class ScoreCalculator
     {
         if (stats == null)
         {
-            return "Score indisponivel: PlayerStats nao encontrado.";
+            return "Pontuação indisponível: PlayerStats não encontrado.";
         }
 
         float finalScore = CalculateFinalScore(stats);
 
         return
-            $"Money: {stats.Money} | " +
-            $"WellBeing: {stats.WellBeing} | " +
-            $"Pollution: {stats.Pollution} | " +
-            $"Score final: {finalScore}";
+            $"Dinheiro: {stats.Money} | " +
+            $"Bem-estar: {stats.WellBeing} | " +
+            $"Poluição: {stats.Pollution} | " +
+            $"Pontuação final: {finalScore}";
     }
 }

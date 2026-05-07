@@ -409,7 +409,7 @@ public class MainMenuUI : MonoBehaviour
         titleRect.offsetMax = Vector2.zero;
 
         heroSubtitleText = FindOrCreateCanvasText("MenuHeroSubtitle");
-        heroSubtitleText.text = "Planeje uma cidade onde economia, bem-estar\ne sustentabilidade avançam juntas.";
+        heroSubtitleText.text = "Planeje uma cidade onde economia, bem-estar\ne sustentabilidade avancem juntas.";
         heroSubtitleText.fontSize = 28f;
         heroSubtitleText.fontStyle = FontStyles.Italic;
         heroSubtitleText.color = new Color(0.90f, 0.95f, 0.98f, 0.95f);

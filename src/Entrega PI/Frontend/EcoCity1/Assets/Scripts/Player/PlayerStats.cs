@@ -70,6 +70,6 @@ public class PlayerStats : MonoBehaviour
     /// </summary>
     public void PrintStats()
     {
-        Debug.Log($"Status atuais -> Money: {Money} | WellBeing: {WellBeing} | Pollution: {Pollution}");
+        Debug.Log($"Status atuais -> Dinheiro: {Money} | Bem-estar: {WellBeing} | Poluição: {Pollution}");
     }
 }

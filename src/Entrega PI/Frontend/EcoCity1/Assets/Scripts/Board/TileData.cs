@@ -16,7 +16,7 @@ public class TileData
     public int wellBeingImpact;
     public int pollutionImpact;
 
-    [Header("Descricao")]
+    [Header("Descrição")]
     public string propertyDescription;
 
     public int Price => purchasePrice;

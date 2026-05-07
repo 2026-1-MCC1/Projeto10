@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 public class BoardManager : MonoBehaviour
@@ -35,7 +35,7 @@ public class BoardManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Garante que o tabuleiro jogável exista em runtime.
+    /// Garante que o tabuleiro jogÃ¡vel exista em runtime.
     /// </summary>
     public bool EnsureTilesReady()
     {
@@ -92,7 +92,7 @@ public class BoardManager : MonoBehaviour
     {
         if (Tiles.Count == 0)
         {
-            Debug.LogWarning("Atualize o cenário apenas com o tabuleiro já gerado em Play.", this);
+            Debug.LogWarning("Atualize o cenÃ¡rio apenas com o tabuleiro jÃ¡ gerado em Play.", this);
             return;
         }
 
@@ -120,7 +120,7 @@ public class BoardManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Garante que exista um gerenciador visual para o cenário em volta do tabuleiro.
+    /// Garante que exista um gerenciador visual para o cenÃ¡rio em volta do tabuleiro.
     /// </summary>
     private void EnsureEnvironmentVisual()
     {
@@ -200,11 +200,11 @@ public class BoardManager : MonoBehaviour
 
         if (index < 0 || index >= pathTypes.Length)
         {
-            Debug.LogWarning($"Indice de tile invalido: {index}. Um tile Empty sera usado.", this);
+            Debug.LogWarning($"Ãndice de tile invÃ¡lido: {index}. Um tile vazio serÃ¡ usado.", this);
 
             return new TileData
             {
-                Name = $"Empty_{index}",
+                Name = $"Vazio_{index}",
                 Type = TileType.Empty,
                 purchasePrice = 0,
                 rentPrice = 0,
@@ -235,15 +235,15 @@ public class BoardManager : MonoBehaviour
         switch (type)
         {
             case TileType.Start:
-                return "Inicio";
+                return "Início";
             case TileType.Factory:
-                return "Fabrica";
+                return "Fábrica";
             case TileType.Park:
                 return "Parque";
             case TileType.Residential:
                 return "Residencial";
             case TileType.Shopping:
-                return "Comercio";
+                return "Comércio";
             case TileType.TreatmentPlant:
                 return "Tratamento";
             case TileType.School:
@@ -253,7 +253,7 @@ public class BoardManager : MonoBehaviour
             case TileType.SolarPlant:
                 return "Usina Solar";
             case TileType.FoodCourt:
-                return "Praca de Alimentacao";
+                return "Praça de Alimentação";
             default:
                 return "Especial";
         }
@@ -396,27 +396,28 @@ public class BoardManager : MonoBehaviour
         switch (type)
         {
             case TileType.Factory:
-                return "Gera renda, mas aumenta a poluicao da cidade.";
+                return "Gera renda, mas aumenta a poluição da cidade.";
             case TileType.Residential:
-                return "Moradia para a populacao com crescimento moderado.";
+                return "Moradia para a população com crescimento moderado.";
             case TileType.Park:
-                return "Melhora a qualidade de vida e reduz a poluicao.";
+                return "Melhora a qualidade de vida e reduz a poluição.";
             case TileType.Shopping:
                 return "Movimenta a economia local com impacto urbano.";
             case TileType.School:
-                return "Fortalece a educacao e o bem-estar coletivo.";
+                return "Fortalece a educação e o bem-estar coletivo.";
             case TileType.Hospital:
-                return "Aumenta a saude publica e reduz riscos sociais.";
+                return "Aumenta a saúde pública e reduz riscos sociais.";
             case TileType.SolarPlant:
                 return "Produz energia limpa com ganhos ambientais.";
             case TileType.TreatmentPlant:
-                return "Trata residuos e ajuda no equilibrio ambiental.";
+                return "Trata resíduos e ajuda no equilíbrio ambiental.";
             case TileType.FoodCourt:
                 return "Atrai consumo e renda com impacto moderado.";
             case TileType.Start:
                 return "Casa inicial do percurso.";
             default:
-                return "Casa especial sem descricao adicional.";
+                return "Casa especial sem descrição adicional.";
         }
     }
 }
+

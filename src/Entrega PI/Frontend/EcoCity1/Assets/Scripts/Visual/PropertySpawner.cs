@@ -31,6 +31,8 @@ public class PropertySpawner : MonoBehaviour
     [SerializeField] private float tileFootprint = 0.62f;
     [SerializeField] private float tileMaxHeight = 0.82f;
     [SerializeField] private float tilePlacementHeight = 0.26f;
+    [SerializeField] private TileType debugPreviewType = TileType.SolarPlant;
+    [SerializeField] private float solarPanelScale = 0.18f;
 
     private readonly Dictionary<TileType, GameObject> prefabMap = new Dictionary<TileType, GameObject>();
     private readonly Dictionary<int, GameObject> placedBuildings = new Dictionary<int, GameObject>();
@@ -40,6 +42,24 @@ public class PropertySpawner : MonoBehaviour
     private bool buildingPurchased;
     private Vector3 currentFinalScale = Vector3.one;
     private Vector3 placedFinalScale = Vector3.one;
+
+    /// <summary>
+    /// Exibe a propriedade configurada para debug diretamente no centro do tabuleiro.
+    /// </summary>
+    [ContextMenu("Preview Debug Property")]
+    public void PreviewDebugProperty()
+    {
+        ShowPropertyByType(debugPreviewType, debugPreviewType.ToString());
+    }
+
+    /// <summary>
+    /// Exibe rapidamente a Usina Solar para teste visual.
+    /// </summary>
+    [ContextMenu("Preview Solar Plant")]
+    public void PreviewSolarPlant()
+    {
+        ShowPropertyByType(TileType.SolarPlant, "Usina Solar");
+    }
 
     /// <summary>
     /// Inicializa o mapeamento de prefabs por tipo de propriedade.
@@ -78,6 +98,20 @@ public class PropertySpawner : MonoBehaviour
         }
 
         currentTile = tile;
+        ShowPropertyByType(tile.Data.Type, tile.Data.Name, tile);
+    }
+
+    /// <summary>
+    /// Exibe uma construção apenas pelo tipo, útil para preview e debug.
+    /// </summary>
+    public void ShowPropertyByType(TileType type, string displayName = null, Tile tile = null)
+    {
+        if (boardCenter == null)
+        {
+            return;
+        }
+
+        currentTile = tile;
         buildingPurchased = false;
 
         if (currentBuilding != null)
@@ -86,7 +120,7 @@ public class PropertySpawner : MonoBehaviour
             currentBuilding = null;
         }
 
-        currentBuilding = CreateBuildingForType(tile.Data.Type);
+        currentBuilding = CreateBuildingForType(type);
 
         if (currentBuilding == null)
         {
@@ -95,10 +129,9 @@ public class PropertySpawner : MonoBehaviour
 
         currentBuilding.transform.SetParent(transform, true);
         currentBuilding.transform.position = boardCenter.position;
-        currentBuilding.name = $"Preview_{tile.Data.Name}";
+        currentBuilding.name = $"Preview_{(string.IsNullOrWhiteSpace(displayName) ? type.ToString() : displayName)}";
         currentFinalScale = CalculateFittedScale(currentBuilding, previewFootprint, previewMaxHeight);
         placedFinalScale = CalculateFittedScale(currentBuilding, tileFootprint, tileMaxHeight);
-        currentBuilding.transform.localScale = currentFinalScale;
         currentBuilding.transform.localScale = Vector3.zero;
         StartCoroutine(RiseAnimation());
     }
@@ -264,7 +297,7 @@ public class PropertySpawner : MonoBehaviour
     {
         if (type == TileType.SolarPlant)
         {
-            return prefabSolarPlant != null ? CreateSolarPanelCluster() : CreatePrimitiveBuilding(type);
+            return CreateSolarPlantPreview();
         }
 
         if (type == TileType.TreatmentPlant && prefabTreatmentPlant == null)
@@ -283,6 +316,19 @@ public class PropertySpawner : MonoBehaviour
     }
 
     /// <summary>
+    /// Cria a melhor versão possível da Usina Solar com base no prefab disponível.
+    /// </summary>
+    private GameObject CreateSolarPlantPreview()
+    {
+        if (prefabSolarPlant == null)
+        {
+            return CreatePrimitiveBuilding(TileType.SolarPlant);
+        }
+
+        return CreateSolarPanelCluster();
+    }
+
+    /// <summary>
     /// Monta um pequeno conjunto de paineis solares quando so existe um prefab unitario.
     /// </summary>
     private GameObject CreateSolarPanelCluster()
@@ -292,12 +338,12 @@ public class PropertySpawner : MonoBehaviour
 
         Vector3[] localPositions =
         {
-            new Vector3(-0.32f, 0f, -0.12f),
-            new Vector3(0f, 0.03f, 0.08f),
-            new Vector3(0.32f, 0f, -0.12f)
+            new Vector3(-0.18f, 0f, -0.04f),
+            new Vector3(0f, 0.01f, 0.04f),
+            new Vector3(0.18f, 0f, -0.04f)
         };
 
-        float[] yRotations = { -18f, 0f, 18f };
+        float[] yRotations = { -8f, 0f, 8f };
 
         for (int index = 0; index < localPositions.Length; index++)
         {
@@ -305,10 +351,10 @@ public class PropertySpawner : MonoBehaviour
             panel.name = $"SolarPanel_{index + 1}";
             panel.transform.localPosition = localPositions[index];
             panel.transform.localRotation = Quaternion.Euler(0f, yRotations[index], 0f);
-            panel.transform.localScale = Vector3.one * 0.85f;
+            panel.transform.localScale = Vector3.one * solarPanelScale;
         }
 
-        CreatePart(root.transform, PrimitiveType.Cube, new Vector3(0f, 0.02f, 0f), new Vector3(1.05f, 0.04f, 0.75f), new Color(0.42f, 0.62f, 0.36f));
+        CreatePart(root.transform, PrimitiveType.Cube, new Vector3(0f, 0.015f, 0f), new Vector3(0.62f, 0.03f, 0.42f), new Color(0.42f, 0.62f, 0.36f));
         return root;
     }
 

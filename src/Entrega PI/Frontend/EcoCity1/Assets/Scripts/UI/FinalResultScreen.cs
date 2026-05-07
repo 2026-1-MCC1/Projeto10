@@ -1,4 +1,4 @@
-using TMPro;
+﻿using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
@@ -57,7 +57,7 @@ public class FinalResultScreen : MonoBehaviour
 
         titleText.text = result.Title;
         subtitleText.text = result.Subtitle;
-        classificationText.text = $"Classificacao: {result.Title}";
+        classificationText.text = $"Classificação: {result.Title}";
         classificationText.color = result.AccentColor;
         messageText.text = result.Message;
         statsSummaryText.text = EndingEvaluator.BuildStatsSummary(stats);
@@ -369,3 +369,4 @@ public class FinalResultScreen : MonoBehaviour
         SceneManager.LoadScene("MainMenu");
     }
 }
+

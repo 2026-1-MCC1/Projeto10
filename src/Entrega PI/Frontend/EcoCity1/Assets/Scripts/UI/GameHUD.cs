@@ -1,4 +1,4 @@
-using TMPro;
+﻿using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
@@ -30,7 +30,7 @@ public class GameHUD : MonoBehaviour
     [SerializeField] private Color colorWeak = new Color(0.31f, 0.76f, 0.97f);
     [SerializeField] private Color colorMedium = new Color(1f, 0.84f, 0.31f);
     [SerializeField] private Color colorStrong = new Color(0.94f, 0.33f, 0.31f);
-    [Header("Texto de Instrucao")]
+    [Header("Texto de Instrução")]
     [SerializeField] private TextMeshProUGUI instructionLabel;
     [SerializeField] private TextMeshProUGUI tutorialText;
     private bool warnedMissingPowerReferences;
@@ -68,7 +68,7 @@ public class GameHUD : MonoBehaviour
 
         if (powerLabel != null && string.IsNullOrWhiteSpace(powerLabel.text))
         {
-            powerLabel.text = "POWER CHARGE";
+            powerLabel.text = "CARGA DO DADO";
         }
 
         if (instructionLabel != null)
@@ -129,23 +129,23 @@ public class GameHUD : MonoBehaviour
 
         if (moneyText != null)
         {
-            moneyText.text = $"Money: {stats.Money}";
+            moneyText.text = $"Dinheiro: {stats.Money}";
         }
 
         if (wellbeingText != null)
         {
-            wellbeingText.text = $"WellBeing: {stats.WellBeing}";
+            wellbeingText.text = $"Bem-estar: {stats.WellBeing}";
         }
 
         if (pollutionText != null)
         {
-            pollutionText.text = $"Pollution: {stats.Pollution}";
+            pollutionText.text = $"Poluição: {stats.Pollution}";
         }
 
         if (scoreText != null)
         {
             float score = ScoreCalculator.CalculateFinalScore(stats);
-            scoreText.text = $"Score: {score:0}";
+            scoreText.text = $"Pontuação: {score:0}";
         }
     }
 
@@ -755,3 +755,4 @@ public class GameHUD : MonoBehaviour
         targetRoot.SetActive(visible);
     }
 }
+

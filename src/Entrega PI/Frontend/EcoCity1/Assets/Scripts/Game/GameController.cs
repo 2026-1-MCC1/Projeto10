@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -143,7 +143,7 @@ public class GameController : MonoBehaviour
         if (physicalDice == null)
         {
             Debug.LogError("PhysicalDice nao esta configurado no GameController.", this);
-            ShowHUDMessage("Configure o dado fisico para continuar.");
+            ShowHUDMessage("Configure o dado físico para continuar.");
             yield break;
         }
 
@@ -161,13 +161,15 @@ public class GameController : MonoBehaviour
 
         if (pendingDiceResult <= 0)
         {
-            Debug.LogError("O dado fisico nao retornou um resultado valido.", this);
+            Debug.LogError("O dado físico não retornou um resultado válido.", this);
             ShowHUDMessage("Falha ao obter resultado do dado.");
             isBusy = false;
             yield break;
         }
 
+        ShowHUDMessage($"Movendo {pendingDiceResult} casas...");
         yield return StartCoroutine(MoveAndRegister(pendingDiceResult));
+        ShowHUDMessage("Verificando casa...");
 
         Tile currentTile = boardManager.GetTileByIndex(playerPiece.CurrentTileIndex);
 
@@ -398,7 +400,7 @@ public class GameController : MonoBehaviour
     {
         TileData data = currentTile.Data;
 
-        yield return new WaitForSeconds(0.2f);
+        yield return new WaitForSeconds(0.55f);
 
         if (data == null)
         {
@@ -412,7 +414,7 @@ public class GameController : MonoBehaviour
             if (purchasePanel == null)
             {
                 Debug.LogWarning("PurchasePanel nao esta configurado. A compra sera ignorada.", this);
-                onMessageReady?.Invoke($"Painel de compra indisponivel para {data.Name}.");
+                onMessageReady?.Invoke($"Painel de compra indisponível para {data.Name}.");
                 OnPurchaseDecision();
                 yield break;
             }
@@ -446,7 +448,7 @@ public class GameController : MonoBehaviour
                 Debug.Log(
                     $"Impactos: Financeiro {data.moneyImpact} | " +
                     $"Bem-estar {data.wellBeingImpact} | " +
-                    $"Poluicao {data.pollutionImpact}");
+                    $"Poluição {data.pollutionImpact}");
                 onMessageReady?.Invoke($"Você comprou {data.Name}.");
                 gameHUD?.ShowTemporaryActionMessage(
                     $"Compra concluída: {data.Name} | {FormatSignedMoney(data.moneyImpact)}/rodada | Bem-estar {FormatSignedValue(data.wellBeingImpact)} | Poluição {FormatSignedValue(data.pollutionImpact)}",
@@ -529,7 +531,7 @@ public class GameController : MonoBehaviour
         Debug.Log(
             $"Impactos da tile {data.Name}: Financeiro {data.FinanceImpact} | " +
             $"Bem-estar {data.WellBeingImpact} | " +
-            $"Poluicao {data.PollutionImpact}");
+            $"Poluição {data.PollutionImpact}");
 
         return $"Impactos da tile {data.Name} aplicados.";
     }
@@ -709,6 +711,10 @@ public class GameController : MonoBehaviour
         {
             ShowDebugEndingPreview(CityEndingType.CidadeEmColapso);
         }
+        else if (Input.GetKeyDown(KeyCode.F6))
+        {
+            PreviewSolarPlantDebug();
+        }
     }
 
     /// <summary>
@@ -724,6 +730,17 @@ public class GameController : MonoBehaviour
         isPreviewingEnding = true;
         isBusy = true;
         SetInteractiveCursorState();
+    }
+
+    /// <summary>
+    /// Exibe rapidamente a Usina Solar no centro do tabuleiro para validar o visual.
+    /// </summary>
+    private void PreviewSolarPlantDebug()
+    {
+        ResolveReferences();
+        propertySpawner?.PreviewSolarPlant();
+        cameraController?.SetCinematic();
+        ShowHUDMessage("Preview da Usina Solar aberto.");
     }
 
     /// <summary>
@@ -997,3 +1014,4 @@ public class GameController : MonoBehaviour
         return value >= 0 ? $"+{value}" : value.ToString();
     }
 }
+

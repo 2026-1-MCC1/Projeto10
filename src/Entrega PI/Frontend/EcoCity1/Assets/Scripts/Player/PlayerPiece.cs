@@ -4,11 +4,15 @@ using UnityEngine;
 public class PlayerPiece : MonoBehaviour
 {
     [SerializeField] private float heightOffset = 0.75f;
-    [SerializeField] private float hopHeight = 0.32f;
-    [SerializeField] private float hopDuration = 0.58f;
-    [SerializeField] private float landingPause = 0.08f;
+    [SerializeField] private float hopHeight = 0.38f;
+    [SerializeField] private float hopDuration = 0.72f;
+    [SerializeField] private float landingPause = 0.12f;
+    [SerializeField] private float forwardTiltAngle = 16f;
 
     private BoardManager boardManager;
+    private Vector3 desiredPosition;
+    private Quaternion desiredRotation = Quaternion.identity;
+    private bool hasDesiredTransform;
 
     public int CurrentTileIndex { get; private set; }
     public bool IsMoving { get; private set; }
@@ -24,6 +28,24 @@ public class PlayerPiece : MonoBehaviour
         {
             gameObject.isStatic = false;
         }
+
+        desiredPosition = transform.position;
+        desiredRotation = transform.rotation;
+        hasDesiredTransform = true;
+    }
+
+    /// <summary>
+    /// Garante no fim do frame que o visual do peao permaneça na posicao calculada pelo jogo.
+    /// </summary>
+    private void LateUpdate()
+    {
+        if (!hasDesiredTransform)
+        {
+            return;
+        }
+
+        transform.position = desiredPosition;
+        transform.rotation = desiredRotation;
     }
 
     /// <summary>
@@ -46,8 +68,10 @@ public class PlayerPiece : MonoBehaviour
         }
 
         CurrentTileIndex = 0;
-        transform.position = GetTileCenterPosition(CurrentTileIndex);
-        OnMoveStep?.Invoke(transform.position);
+        desiredPosition = GetTileCenterPosition(CurrentTileIndex);
+        desiredRotation = transform.rotation;
+        transform.position = desiredPosition;
+        OnMoveStep?.Invoke(desiredPosition);
     }
 
     /// <summary>
@@ -79,6 +103,11 @@ public class PlayerPiece : MonoBehaviour
             CurrentTileIndex = (CurrentTileIndex + 1) % boardManager.Tiles.Count;
             Vector3 targetPosition = GetTileCenterPosition(CurrentTileIndex);
             Vector3 startPosition = transform.position;
+            Vector3 moveDirection = targetPosition - startPosition;
+            moveDirection.y = 0f;
+            Quaternion baseRotation = moveDirection.sqrMagnitude > 0.0001f
+                ? Quaternion.LookRotation(moveDirection.normalized, Vector3.up)
+                : transform.rotation;
             float elapsed = 0f;
 
             while (elapsed < hopDuration)
@@ -89,20 +118,30 @@ public class PlayerPiece : MonoBehaviour
                 float hopOffset = Mathf.Sin(t * Mathf.PI) * hopHeight;
 
                 Vector3 flatPosition = Vector3.Lerp(startPosition, targetPosition, forwardT);
-                transform.position = flatPosition + Vector3.up * hopOffset;
-                OnMoveStep?.Invoke(transform.position);
+                desiredPosition = flatPosition + Vector3.up * hopOffset;
+                float tiltAmount = Mathf.Sin(t * Mathf.PI) * forwardTiltAngle;
+                Quaternion tiltedRotation = baseRotation * Quaternion.Euler(-tiltAmount, 0f, 0f);
+                desiredRotation = Quaternion.Slerp(desiredRotation, tiltedRotation, 0.35f);
+                transform.position = desiredPosition;
+                transform.rotation = desiredRotation;
+                OnMoveStep?.Invoke(desiredPosition);
 
                 yield return null;
             }
 
-            transform.position = targetPosition;
-            OnMoveStep?.Invoke(transform.position);
+            desiredPosition = targetPosition;
+            desiredRotation = baseRotation;
+            transform.position = desiredPosition;
+            transform.rotation = desiredRotation;
+            OnMoveStep?.Invoke(desiredPosition);
             yield return new WaitForSeconds(landingPause);
         }
 
         IsMoving = false;
-        transform.position = GetTileCenterPosition(CurrentTileIndex);
-        OnMoveComplete?.Invoke(transform.position);
+        desiredPosition = GetTileCenterPosition(CurrentTileIndex);
+        desiredRotation = transform.rotation;
+        transform.position = desiredPosition;
+        OnMoveComplete?.Invoke(desiredPosition);
     }
 
     /// <summary>

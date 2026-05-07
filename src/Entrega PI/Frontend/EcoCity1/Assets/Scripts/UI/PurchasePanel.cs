@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using TMPro;
 using UnityEngine;
@@ -88,7 +88,7 @@ public class PurchasePanel : MonoBehaviour
 
         if (priceText != null)
         {
-            priceText.text = $"Preco: ${tile.Data.purchasePrice}";
+            priceText.text = $"Preço: ${tile.Data.purchasePrice}";
         }
 
         if (descriptionText != null)
@@ -292,13 +292,13 @@ public class PurchasePanel : MonoBehaviour
         switch (type)
         {
             case TileType.Factory:
-                return "Fabrica";
+                return "Fábrica";
             case TileType.Park:
                 return "Parque";
             case TileType.Residential:
-                return "Residencia";
+                return "Residência";
             case TileType.Shopping:
-                return "Comercio";
+                return "Comércio";
             case TileType.TreatmentPlant:
                 return "Tratamento";
             case TileType.School:
@@ -308,11 +308,12 @@ public class PurchasePanel : MonoBehaviour
             case TileType.SolarPlant:
                 return "Usina Solar";
             case TileType.FoodCourt:
-                return "Praca de Alimentacao";
+                return "Praça de Alimentação";
             case TileType.Start:
-                return "Inicio";
+                return "Início";
             default:
                 return "Especial";
         }
     }
 }
+
