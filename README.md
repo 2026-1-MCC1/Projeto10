@@ -95,7 +95,7 @@ Descreva como instalar todas as dependências para desenvolvimento e como rodar 
 
 Para abrir este projeto você necessita das seguintes ferramentas:
 
--<a href="(https://unity.com/products/unity-engine)">UNITY</a>
+-<a href="https://unity.com/download">UNITY</a>
 
 ```sh
 make install
