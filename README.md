@@ -23,7 +23,7 @@ Vide tutoriais do PI.
 
 <p align="center">
 <img src="imagens/imagemgit.png" width="1000" alt="NOME DO JOGO" border="0">
-  Game by <a href="http://www.nyphotographic.com/">Arthur Lima de Luiz, Brian Walter, Leonardo Batista França </a> <a rel="license" href="https://creativecommons.org/licenses/by-sa/3.0/">CC BY 4.0
+  Game by <a href="http://www.nyphotographic.com/">Arthur Lima de Luiz, Brian Walter, Leonardo Batista França </a> <a rel="license" href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0
                                                                                                                                                                                                            
 O EcoCity surgiu como uma proposta divertida de conscientização sobre sustentabilidade. Em formato de tabuleiro digital, o jogo permite que o jogador gerencie uma cidade enquanto equilibra dinheiro, bem-estar da população e níveis de poluição.
 
