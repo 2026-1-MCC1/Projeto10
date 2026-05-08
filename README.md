@@ -27,11 +27,10 @@ Vide tutoriais do PI.
 </p>
 
 
-De um a dois parágrafos sobre o que é seu projeto e o que ele faz.
-<br><br>
-Meu projeto ajuda estudantes FECAP a configurarem seus githubs.
-<br><br>
-May the force be with you!
+O EcoCity surgiu como uma proposta divertida de conscientização sobre sustentabilidade. Em formato de tabuleiro digital, o jogo permite que o jogador gerencie uma cidade enquanto equilibra dinheiro, bem-estar da população e níveis de poluição.
+
+Suas decisões definem o futuro da cidade, priorizar apenas o lucro pode trazer consequências ambientais graves, enquanto uma gestão equilibrada pode transformar EcoCity em um exemplo de desenvolvimento sustentável.
+Planeje, invista e descubra até onde sua cidade pode evoluir. Venha conhecer o EcoCity!
 <br><br>
 
 ## 🛠 Estrutura de pastas
