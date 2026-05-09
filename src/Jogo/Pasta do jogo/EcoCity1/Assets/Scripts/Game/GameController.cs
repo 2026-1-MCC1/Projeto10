@@ -19,15 +19,12 @@ public class GameController : MonoBehaviour
     [SerializeField] private FinalResultScreen finalResultScreen;
     [SerializeField] private CityEventSystem cityEventSystem;
     [SerializeField] private GameAudioController gameAudioController;
-    [Header("Debug de Finais")]
-    [SerializeField] private bool enableEndingDebugPreview = true;
 
     private bool isBusy;
     private int pendingDiceResult;
     private bool hasPendingDiceResult;
     private bool pendingGameOver;
     private bool finalScreenShown;
-    private bool isPreviewingEnding;
     private bool isPaused;
     private GameObject pausePanelRoot;
 
@@ -63,7 +60,6 @@ public class GameController : MonoBehaviour
         hasPendingDiceResult = false;
         pendingGameOver = false;
         finalScreenShown = false;
-        isPreviewingEnding = false;
 
         if (!boardManager.EnsureTilesReady())
         {
@@ -104,9 +100,7 @@ public class GameController : MonoBehaviour
     /// </summary>
     private void Update()
     {
-        HandleDebugEndingPreviewInput();
-
-        if (finalScreenShown || isPreviewingEnding)
+        if (finalScreenShown)
         {
             UpdateCursorState();
             return;
@@ -676,88 +670,6 @@ public class GameController : MonoBehaviour
     }
 
     /// <summary>
-    /// Permite abrir rapidamente qualquer tela final no editor sem jogar 12 rodadas.
-    /// </summary>
-    private void HandleDebugEndingPreviewInput()
-    {
-        if (!enableEndingDebugPreview)
-        {
-            return;
-        }
-
-        if (Input.GetKeyDown(KeyCode.Escape) && isPreviewingEnding)
-        {
-            HideDebugEndingPreview();
-            return;
-        }
-
-        if (Input.GetKeyDown(KeyCode.F1))
-        {
-            ShowDebugEndingPreview(CityEndingType.GestorExemplar);
-        }
-        else if (Input.GetKeyDown(KeyCode.F2))
-        {
-            ShowDebugEndingPreview(CityEndingType.BomGestor);
-        }
-        else if (Input.GetKeyDown(KeyCode.F3))
-        {
-            ShowDebugEndingPreview(CityEndingType.GestaoDesequilibrada);
-        }
-        else if (Input.GetKeyDown(KeyCode.F4))
-        {
-            ShowDebugEndingPreview(CityEndingType.MagnataSemEscrupulos);
-        }
-        else if (Input.GetKeyDown(KeyCode.F5))
-        {
-            ShowDebugEndingPreview(CityEndingType.CidadeEmColapso);
-        }
-        else if (Input.GetKeyDown(KeyCode.F6))
-        {
-            PreviewSolarPlantDebug();
-        }
-    }
-
-    /// <summary>
-    /// Abre uma tela final de teste e pausa temporariamente a jogabilidade.
-    /// </summary>
-    private void ShowDebugEndingPreview(CityEndingType endingType)
-    {
-        ResolveReferences();
-
-        FinalEvaluationResult previewResult = EndingEvaluator.CreatePreviewResult(endingType);
-        finalResultScreen?.Show(previewResult, playerStats);
-        gameHUD?.SetGameplayUIVisible(false);
-        isPreviewingEnding = true;
-        isBusy = true;
-        SetInteractiveCursorState();
-    }
-
-    /// <summary>
-    /// Exibe rapidamente a Usina Solar no centro do tabuleiro para validar o visual.
-    /// </summary>
-    private void PreviewSolarPlantDebug()
-    {
-        ResolveReferences();
-        propertySpawner?.PreviewSolarPlant();
-        cameraController?.SetCinematic();
-        ShowHUDMessage("Preview da Usina Solar aberto.");
-    }
-
-    /// <summary>
-    /// Fecha a tela final de teste e devolve a interface normal do jogo.
-    /// </summary>
-    private void HideDebugEndingPreview()
-    {
-        finalResultScreen?.HideImmediate();
-        gameHUD?.SetGameplayUIVisible(true);
-        RefreshHUD();
-        UpdateRoundHUD();
-        isPreviewingEnding = false;
-        isBusy = false;
-        SetGameplayCursorState();
-    }
-
-    /// <summary>
     /// Cria um menu de pausa simples em runtime.
     /// </summary>
     private void BuildPauseMenu()
@@ -811,7 +723,7 @@ public class GameController : MonoBehaviour
     /// </summary>
     private void TogglePauseMenu()
     {
-        if (finalScreenShown || isPreviewingEnding)
+        if (finalScreenShown)
         {
             return;
         }
@@ -890,7 +802,6 @@ public class GameController : MonoBehaviour
         bool shouldShowCursor =
             isPaused ||
             finalScreenShown ||
-            isPreviewingEnding ||
             (purchasePanel != null && purchasePanel.IsVisible);
 
         if (shouldShowCursor)

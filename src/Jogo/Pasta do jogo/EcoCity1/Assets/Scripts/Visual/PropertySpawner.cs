@@ -31,7 +31,6 @@ public class PropertySpawner : MonoBehaviour
     [SerializeField] private float tileFootprint = 0.62f;
     [SerializeField] private float tileMaxHeight = 0.82f;
     [SerializeField] private float tilePlacementHeight = 0.26f;
-    [SerializeField] private TileType debugPreviewType = TileType.SolarPlant;
     [SerializeField] private float solarPanelScale = 0.18f;
 
     private readonly Dictionary<TileType, GameObject> prefabMap = new Dictionary<TileType, GameObject>();
@@ -42,24 +41,6 @@ public class PropertySpawner : MonoBehaviour
     private bool buildingPurchased;
     private Vector3 currentFinalScale = Vector3.one;
     private Vector3 placedFinalScale = Vector3.one;
-
-    /// <summary>
-    /// Exibe a propriedade configurada para debug diretamente no centro do tabuleiro.
-    /// </summary>
-    [ContextMenu("Preview Debug Property")]
-    public void PreviewDebugProperty()
-    {
-        ShowPropertyByType(debugPreviewType, debugPreviewType.ToString());
-    }
-
-    /// <summary>
-    /// Exibe rapidamente a Usina Solar para teste visual.
-    /// </summary>
-    [ContextMenu("Preview Solar Plant")]
-    public void PreviewSolarPlant()
-    {
-        ShowPropertyByType(TileType.SolarPlant, "Usina Solar");
-    }
 
     /// <summary>
     /// Inicializa o mapeamento de prefabs por tipo de propriedade.

@@ -220,7 +220,7 @@ public class MainMenuUI : MonoBehaviour
         EnsureBackground();
         BuildHeroText();
         StylePanel(mainPanel, string.Empty, string.Empty);
-        StylePanel(optionsPanel, "OPÇÕES", "Controles:\n- ESPAÇO para carregar e rolar o dado\n- F1 a F5 para testar finais no editor\n\nDica:\nBusque equilíbrio entre dinheiro, bem-estar e poluição.");
+        StylePanel(optionsPanel, "OPÇÕES", "Controles:\n- ESPAÇO para carregar e rolar o dado\n- ESC para abrir o menu de pausa\n\nDica:\nBusque equilíbrio entre dinheiro, bem-estar e poluição.");
         StylePanel(creditsPanel, "CRÉDITOS", "Projeto: Eco City\nDesenvolvimento:\nArthur Lima De Luiz\nLeonardo Batista França\nBrian Walter\nMotor: Unity\n\nObrigado por jogar e testar nossa cidade sustentável.");
     }
 

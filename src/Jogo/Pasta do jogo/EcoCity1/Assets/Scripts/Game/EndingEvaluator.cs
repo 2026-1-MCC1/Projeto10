@@ -128,60 +128,6 @@ public static class EndingEvaluator
     }
 
     /// <summary>
-    /// Cria um resultado de preview para testar rapidamente cada tela final no editor.
-    /// </summary>
-    public static FinalEvaluationResult CreatePreviewResult(CityEndingType endingType)
-    {
-        switch (endingType)
-        {
-            case CityEndingType.GestorExemplar:
-                return CreateResult(
-                    CityEndingType.GestorExemplar,
-                    "GESTOR EXEMPLAR",
-                    "Sua cidade prosperou com equilíbrio.",
-                    "Você provou que desenvolvimento econômico, qualidade de vida e responsabilidade ambiental podem caminhar juntos. A população confia na sua liderança e a cidade se tornou referência de planejamento urbano.",
-                    "Imagem_GestorExemplar",
-                    new Color(0.30f, 0.69f, 0.31f));
-
-            case CityEndingType.BomGestor:
-                return CreateResult(
-                    CityEndingType.BomGestor,
-                    "BOM GESTOR",
-                    "Sua cidade cresceu de forma consistente.",
-                    "Você tomou boas decisões e conduziu a cidade por um caminho seguro. Ainda existem desafios pela frente, mas o saldo da sua gestão foi amplamente positivo.",
-                    "Imagem_BomGestor",
-                    new Color(0.13f, 0.59f, 0.95f));
-
-            case CityEndingType.MagnataSemEscrupulos:
-                return CreateResult(
-                    CityEndingType.MagnataSemEscrupulos,
-                    "MAGNATA SEM ESCRÚPULOS",
-                    "Você enriqueceu, mas abandonou a cidade.",
-                    "Os cofres estão cheios, mas a população paga o preço. Poluição, desgaste urbano e perda de bem-estar marcaram sua administração. Sua cidade cresceu no papel, mas não para as pessoas.",
-                    "Imagem_MagnataSemEscrupulos",
-                    new Color(0.93f, 0.64f, 0.15f));
-
-            case CityEndingType.CidadeEmColapso:
-                return CreateResult(
-                    CityEndingType.CidadeEmColapso,
-                    "CIDADE EM COLAPSO",
-                    "Sua gestão levou a cidade ao limite.",
-                    "A poluição saiu do controle, o bem-estar despencou e a cidade perdeu qualidade de vida. Sua administração falhou em equilibrar crescimento, sustentabilidade e cuidado com a população.",
-                    "Imagem_CidadeEmColapso",
-                    new Color(0.85f, 0.26f, 0.23f));
-
-            default:
-                return CreateResult(
-                    CityEndingType.GestaoDesequilibrada,
-                    "GESTÃO DESEQUILIBRADA",
-                    "Você manteve a cidade de pé, mas sem harmonia.",
-                    "Algumas escolhas trouxeram avanços, mas outras criaram problemas que impediram um desenvolvimento mais saudável. Sua cidade não entrou em colapso, mas também não atingiu seu potencial.",
-                    "Imagem_GestaoDesequilibrada",
-                    new Color(0.48f, 0.55f, 0.60f));
-        }
-    }
-
-    /// <summary>
     /// Cria o objeto de resultado final com todos os dados necessarios para a UI.
     /// </summary>
     private static FinalEvaluationResult CreateResult(
