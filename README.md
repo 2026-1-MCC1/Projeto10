@@ -27,7 +27,7 @@ Planeje, invista e descubra até onde sua cidade pode evoluir. Venha conhecer o 
 
 ## 🛠 Estrutura de pastas
 
-```text
+
 Projeto10
 ├── documentos
 │   ├── Entrega 1
