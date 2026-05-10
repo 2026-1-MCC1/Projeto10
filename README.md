@@ -1,9 +1,5 @@
 ```sh
-Utilize o site <https://www.toptal.com/developers/gitignore> para gerar seu arquivo gitignore e apague este campo.
-
-Vide tutoriais do PI.
 ```
-
 # FECAP - Fundação de Comércio Álvares Penteado
 
 <p align="center">
@@ -33,34 +29,36 @@ Planeje, invista e descubra até onde sua cidade pode evoluir. Venha conhecer o 
 
 ## 🛠 Estrutura de pastas
 
--Raiz<br>
-|<br>
-|-->documentos<br>
-  &emsp;|-->antigos<br>
-  &emsp;|Documentação.docx<br>
-|-->executáveis<br>
-  &emsp;|-->windows<br>
-  &emsp;|-->android<br>
-  &emsp;|-->HTML<br>
-|-->imagens<br>
-|-->src<br>
-  &emsp;|-->Backend<br>
-  &emsp;|-->Frontend<br>
-|readme.md<br>
-
-A pasta raiz contem dois arquivos que devem ser alterados:
-
-<b>README.MD</b>: Arquivo que serve como guia e explicação geral sobre seu projeto. O mesmo que você está lendo agora.
-
-Há também 4 pastas que seguem da seguinte forma:
-
-<b>documentos</b>: Toda a documentação estará nesta pasta.
-
-<b>executáveis</b>: Binários e executáveis do projeto devem estar nesta pasta.
-
-<b>imagens</b>: Imagens do sistema
-
-<b>src</b>: Pasta que contém o código fonte.
+```text
+Projeto10
+├── documentos
+│   ├── Entrega 1
+│   │   ├── Algoritimo e lógica de programação
+│   │   ├── Cálculo I
+│   │   ├── Jogos Digitais e Sistemas Digitais Interativos
+│   │   ├── Projeto Interdisciplinar Jogos Digitais
+│   │   └── Ética e pensamento computacional
+│   ├── Entrega 2
+│   │   ├── Disciplina 1
+│   │   ├── Disciplina 2
+│   │   ├── Entrega PI
+│   │   ├── Projeto Interdisciplinar Jogos Digitais
+│   │   └── Ética e pensamento computacional
+│   ├── BANNER Eco City .pptx.pdf
+│   ├── Documento - Projeto de Extensão - COM Empresa - Eco City (1).docx
+│   ├── Documento - Projeto de Extensão - COM Empresa - Eco City (1).pdf
+│   └── README.md
+├── Executável
+├── imagens
+├── src
+│   ├── Entrega 1
+│   │   ├── Backend
+│   │   └── Frontend
+│   └── Entrega 2
+│       ├── Backend
+│       └── Frontend
+├── .gitignore
+└── README.md
 
 ## 🛠 Instalação
 
