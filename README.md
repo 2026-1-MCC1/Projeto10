@@ -82,18 +82,18 @@ src: Pasta que contém o código-fonte, a versão de desenvolvimento da Entrega 
 <b>Web:</b>
 
 Não há instalação local obrigatória para jogar a versão publicada.
-Acesse o jogo diretamente pelo navegador através do link:
+Acesse o arquivo de link disponível na pasta `Executável`:
 
 ```sh
-https://brianwalter-q.itch.io/eco-city
+Executável/Link para acesso Web.txt
 ```
 
 <b>Download:</b>
 
-Também é possível acessar o link de download da versão compactada disponibilizada na pasta `Executável`:
+O link de download da versão compactada também está disponível na pasta `Executável`:
 
 ```sh
-https://drive.google.com/file/d/1ma33r9c9EG3_cuqZpOwezwBpvYRQXzL9/view?usp=sharing
+Executável/Link para download.txt
 ```
 
 <b>Unity:</b>
@@ -118,10 +118,14 @@ Para abrir este projeto você necessita das seguintes ferramentas:
 - Unity Editor 6000.3.6f1
 
 ```sh
-1. Abra o Unity Hub
-2. Clique em Add project
-3. Selecione a pasta src/Entrega 2/Frontend/EcoCity1
-4. Abra o projeto com a versão 6000.3.6f1
+1. Baixe ou clone este repositório no seu computador
+2. Instale o Unity Hub
+3. Instale a versão 6000.3.6f1 do Unity Editor
+4. Abra o Unity Hub
+5. Clique em Add project
+6. Selecione a pasta src/Entrega 2/Frontend/EcoCity1
+7. Abra o projeto com a versão 6000.3.6f1
+8. Aguarde a Unity importar os arquivos e reconstruir os arquivos temporários automaticamente
 ```
 
 Versões do projeto:
@@ -133,16 +137,6 @@ Organização do código:
 
 - `Backend`: scripts organizados por sistemas como tabuleiro, câmera, lógica de jogo, jogador, interface e visual.
 - `Frontend`: projetos Unity utilizados no desenvolvimento e na versão final jogável.
-
-## 🎮 Acesso ao jogo
-
-A versão web do Eco City está disponível no itch.io:
-
-<a href="https://brianwalter-q.itch.io/eco-city">https://brianwalter-q.itch.io/eco-city</a>
-
-O link para download da versão compactada também está disponível em:
-
-<a href="https://drive.google.com/file/d/1ma33r9c9EG3_cuqZpOwezwBpvYRQXzL9/view?usp=sharing">https://drive.google.com/file/d/1ma33r9c9EG3_cuqZpOwezwBpvYRQXzL9/view?usp=sharing</a>
 
 ## 📋 Licença/License
 <a href="https://example.com">Eco City</a> © 2026 by <a href="https://example.com">Leonardo Batista França, Arthur Lima de Luiz, Brian Walter e FECAP</a> is licensed under <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a><img src="https://mirrors.creativecommons.org/presskit/icons/cc.svg" alt="" style="max-width: 1em;max-height:1em;margin-left: .2em;"><img src="https://mirrors.creativecommons.org/presskit/icons/by.svg" alt="" style="max-width: 1em;max-height:1em;margin-left: .2em;">
