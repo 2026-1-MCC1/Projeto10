@@ -44,7 +44,8 @@ Projeto10
 │   │   ├── Jogos Digitais e Sistemas Digitais Interativos
 │   │   ├── Projeto Interdisciplinar Jogos Digitais
 │   │   └── Ética e pensamento computacional
-│   ├── BANNER Eco City .pptx.pdf
+│   ├── Banner Eco City.pptx
+│   ├── Banner_PI_80x120_2026.pdf
 │   ├── Documento - Projeto de Extensão - COM Empresa - Eco City (1).docx
 │   ├── Documento - Projeto de Extensão - COM Empresa - Eco City (1).pdf
 │   └── README.md
