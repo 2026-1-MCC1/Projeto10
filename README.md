@@ -79,6 +79,16 @@ src: Pasta que contém o código-fonte, a versão de desenvolvimento da Entrega 
 
 ## 🛠 Instalação
 
+<b>Windows:</b>
+
+Para acessar o projeto em um computador com Windows, utilize o arquivo de link disponível na pasta `Executável`:
+
+```sh
+Executável/Link para download.txt
+```
+
+Após baixar os arquivos do projeto no seu computador, extraia o conteúdo em uma pasta local para poder abrir o projeto no Unity Editor.
+
 <b>Web:</b>
 
 Não há instalação local obrigatória para jogar a versão publicada.
@@ -96,20 +106,6 @@ O link de download da versão compactada também está disponível na pasta `Exe
 Executável/Link para download.txt
 ```
 
-<b>Unity:</b>
-
-Para abrir o projeto no ambiente de desenvolvimento, utilize o Unity Hub e selecione a pasta da versão desejada:
-
-```sh
-src/Entrega 2/Frontend/EcoCity1
-```
-
-ou, no caso da versão de desenvolvimento recuperada da Entrega 1:
-
-```sh
-src/Entrega 1/Frontend/Eco City Desenvolvimento
-```
-
 ## 💻 Configuração para Desenvolvimento
 
 Para abrir este projeto você necessita das seguintes ferramentas:
@@ -123,7 +119,7 @@ Para abrir este projeto você necessita das seguintes ferramentas:
 3. Instale a versão 6000.3.6f1 do Unity Editor
 4. Abra o Unity Hub
 5. Clique em Add project
-6. Selecione a pasta src/Entrega 2/Frontend/EcoCity1
+6. Selecione a pasta `src/Entrega 2/Frontend/EcoCity1`
 7. Abra o projeto com a versão 6000.3.6f1
 8. Aguarde a Unity importar os arquivos e reconstruir os arquivos temporários automaticamente
 ```
