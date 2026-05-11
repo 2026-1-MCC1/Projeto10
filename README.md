@@ -31,7 +31,7 @@ O repositório reúne tanto a versão de desenvolvimento construída ao longo da
 
 ```text
 Projeto10
-├── documentos
+├── Documentos
 │   ├── Entrega 1
 │   │   ├── Algoritimo e lógica de programação
 │   │   ├── Cálculo I
@@ -48,7 +48,7 @@ Projeto10
 │   ├── Documento - Projeto de Extensão - COM Empresa - Eco City (1).docx
 │   ├── Documento - Projeto de Extensão - COM Empresa - Eco City (1).pdf
 │   └── README.md
-├── Executável
+├── Executáveis
 │   ├── Link para acesso Web.txt
 │   └── Link para download.txt
 ├── Imagens
@@ -70,11 +70,11 @@ A pasta raiz contém os principais arquivos e diretórios do projeto:
 
 README.md: Arquivo que serve como guia e explicação geral sobre o projeto.
 
-documentos: Toda a documentação acadêmica e os materiais das entregas estão nesta pasta.
+Documentos: Toda a documentação acadêmica e os materiais das entregas estão nesta pasta.
 
-Executável: Pasta com os links de acesso e distribuição da versão jogável.
+Executáveis: Pasta com os links de acesso e distribuição da versão jogável.
 
-imagens: Imagens do sistema, capturas de tela e materiais visuais do projeto.
+Imagens: Imagens do sistema, capturas de tela e materiais visuais do projeto.
 
 src: Pasta que contém o código-fonte, a versão de desenvolvimento da Entrega 1 e a versão final da Entrega 2.
 
