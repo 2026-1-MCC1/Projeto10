@@ -16,14 +16,16 @@
 ## Descrição
 
 <p align="center">
-<img src="imagens/imagemgit.png" width="1000" alt="NOME DO JOGO" border="0">
-  Game by <a href="http://www.nyphotographic.com/">Arthur Lima de Luiz, Brian Walter, Leonardo Batista França </a> <a rel="license" href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0
-                                                                                                                                                                                                           
+<img src="imagens/imagemgit.png" width="1000" alt="Eco City" border="0">
+  Game by <a href="http://www.nyphotographic.com/">Arthur Lima de Luiz, Brian Walter, Leonardo Batista França </a> <a rel="license" href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>
+
 O EcoCity surgiu como uma proposta divertida de conscientização sobre sustentabilidade. Em formato de tabuleiro digital, o jogo permite que o jogador gerencie uma cidade enquanto equilibra dinheiro, bem-estar da população e níveis de poluição.
 
-Suas decisões definem o futuro da cidade, priorizar apenas o lucro pode trazer consequências ambientais graves, enquanto uma gestão equilibrada pode transformar EcoCity em um exemplo de desenvolvimento sustentável.
+Suas decisões definem o futuro da cidade: priorizar apenas o lucro pode trazer consequências ambientais graves, enquanto uma gestão equilibrada pode transformar EcoCity em um exemplo de desenvolvimento sustentável.
 Planeje, invista e descubra até onde sua cidade pode evoluir. Venha conhecer o EcoCity!
 <br><br>
+
+O repositório reúne tanto a versão de desenvolvimento construída ao longo da Entrega 1 quanto a versão final organizada na Entrega 2, além dos documentos acadêmicos e materiais complementares do projeto.
 
 ## 🛠 Estrutura de pastas
 
@@ -37,9 +39,9 @@ Projeto10
 │   │   ├── Projeto Interdisciplinar Jogos Digitais
 │   │   └── Ética e pensamento computacional
 │   ├── Entrega 2
-│   │   ├── Disciplina 1
-│   │   ├── Disciplina 2
-│   │   ├── Entrega PI
+│   │   ├── Algoritimos e logica de programação
+│   │   ├── Cálculo I
+│   │   ├── Jogos Digitais e Sistemas Digitais Interativos
 │   │   ├── Projeto Interdisciplinar Jogos Digitais
 │   │   └── Ética e pensamento computacional
 │   ├── BANNER Eco City .pptx.pdf
@@ -47,58 +49,103 @@ Projeto10
 │   ├── Documento - Projeto de Extensão - COM Empresa - Eco City (1).pdf
 │   └── README.md
 ├── Executável
+│   ├── Link para acesso Web.txt
+│   └── Link para download.txt
 ├── imagens
 ├── src
 │   ├── Entrega 1
 │   │   ├── Backend
 │   │   └── Frontend
+│   │       └── Eco City Desenvolvimento
 │   └── Entrega 2
 │       ├── Backend
 │       └── Frontend
+│           └── EcoCity1
 ├── .gitignore
 └── README.md
+```
+
+A pasta raiz contém os principais arquivos e diretórios do projeto:
+
+README.md: Arquivo que serve como guia e explicação geral sobre o projeto.
+
+documentos: Toda a documentação acadêmica e os materiais das entregas estão nesta pasta.
+
+Executável: Pasta com os links de acesso e distribuição da versão jogável.
+
+imagens: Imagens do sistema, capturas de tela e materiais visuais do projeto.
+
+src: Pasta que contém o código-fonte, a versão de desenvolvimento da Entrega 1 e a versão final da Entrega 2.
 
 ## 🛠 Instalação
 
-<b>Android:</b>
+<b>Web:</b>
 
-Faça o Download do JOGO.apk no seu celular.
-Execute o APK e siga as instruções de seu telefone.
-
-```sh
-Coloque código do prompt de comnando se for necessário
-```
-
-<b>Windows:</b>
-
-Não há instalação! Apenas executável!
-Encontre o JOGO.exe na pasta executáveis e execute-o como qualquer outro programa.
+Não há instalação local obrigatória para jogar a versão publicada.
+Acesse o jogo diretamente pelo navegador através do link:
 
 ```sh
-Coloque código do prompt de comnando se for necessário
+https://brianwalter-q.itch.io/eco-city
 ```
 
-<b>HTML:</b>
+<b>Download:</b>
 
-Não há instalação!
-Encontre o index.html na pasta executáveis e execute-o como uma página WEB (através de algum browser).
+Também é possível acessar o link de download da versão compactada disponibilizada na pasta `Executável`:
+
+```sh
+https://drive.google.com/file/d/1ma33r9c9EG3_cuqZpOwezwBpvYRQXzL9/view?usp=sharing
+```
+
+<b>Unity:</b>
+
+Para abrir o projeto no ambiente de desenvolvimento, utilize o Unity Hub e selecione a pasta da versão desejada:
+
+```sh
+src/Entrega 2/Frontend/EcoCity1
+```
+
+ou, no caso da versão de desenvolvimento recuperada da Entrega 1:
+
+```sh
+src/Entrega 1/Frontend/Eco City Desenvolvimento
+```
 
 ## 💻 Configuração para Desenvolvimento
 
-Descreva como instalar todas as dependências para desenvolvimento e como rodar um test-suite automatizado de algum tipo. Se necessário, faça isso para múltiplas plataformas.
-
 Para abrir este projeto você necessita das seguintes ferramentas:
 
--<a href="https://unity.com/download">UNITY</a>
+- <a href="https://unity.com/download">Unity Hub</a>
+- Unity Editor 6000.3.6f1
 
 ```sh
-make install
-npm test
-Coloque código do prompt de comnando se for necessário
+1. Abra o Unity Hub
+2. Clique em Add project
+3. Selecione a pasta src/Entrega 2/Frontend/EcoCity1
+4. Abra o projeto com a versão 6000.3.6f1
 ```
 
+Versões do projeto:
+
+- Entrega 1: versão de desenvolvimento em `src/Entrega 1/Frontend/Eco City Desenvolvimento`
+- Entrega 2: versão final do jogo em `src/Entrega 2/Frontend/EcoCity1`
+
+Organização do código:
+
+- `Backend`: scripts organizados por sistemas como tabuleiro, câmera, lógica de jogo, jogador, interface e visual.
+- `Frontend`: projetos Unity utilizados no desenvolvimento e na versão final jogável.
+
+## 🎮 Acesso ao jogo
+
+A versão web do Eco City está disponível no itch.io:
+
+<a href="https://brianwalter-q.itch.io/eco-city">https://brianwalter-q.itch.io/eco-city</a>
+
+O link para download da versão compactada também está disponível em:
+
+<a href="https://drive.google.com/file/d/1ma33r9c9EG3_cuqZpOwezwBpvYRQXzL9/view?usp=sharing">https://drive.google.com/file/d/1ma33r9c9EG3_cuqZpOwezwBpvYRQXzL9/view?usp=sharing</a>
+
 ## 📋 Licença/License
-<a href="https://example.com">Eco City</a> © 2026 by <a href="https://example.com">Leonardo Batista França , Arthur Lima de Luiz, Brian Walter e FECAP</a> is licensed under <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a><img src="https://mirrors.creativecommons.org/presskit/icons/cc.svg" alt="" style="max-width: 1em;max-height:1em;margin-left: .2em;"><img src="https://mirrors.creativecommons.org/presskit/icons/by.svg" alt="" style="max-width: 1em;max-height:1em;margin-left: .2em;">
+<a href="https://example.com">Eco City</a> © 2026 by <a href="https://example.com">Leonardo Batista França, Arthur Lima de Luiz, Brian Walter e FECAP</a> is licensed under <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a><img src="https://mirrors.creativecommons.org/presskit/icons/cc.svg" alt="" style="max-width: 1em;max-height:1em;margin-left: .2em;"><img src="https://mirrors.creativecommons.org/presskit/icons/by.svg" alt="" style="max-width: 1em;max-height:1em;margin-left: .2em;">
 
 ## 🎓 Referências
 
