@@ -98,14 +98,6 @@ Acesse o arquivo de link disponível na pasta `Executável`:
 Executável/Link para acesso Web.txt
 ```
 
-<b>Download:</b>
-
-O link de download da versão compactada também está disponível na pasta `Executável`:
-
-```sh
-Executável/Link para download.txt
-```
-
 ## 💻 Configuração para Desenvolvimento
 
 Para abrir este projeto você necessita das seguintes ferramentas:
@@ -123,16 +115,6 @@ Para abrir este projeto você necessita das seguintes ferramentas:
 7. Abra o projeto com a versão 6000.3.6f1
 8. Aguarde a Unity importar os arquivos e reconstruir os arquivos temporários automaticamente
 ```
-
-Versões do projeto:
-
-- Entrega 1: versão de desenvolvimento em `src/Entrega 1/Frontend/Eco City Desenvolvimento`
-- Entrega 2: versão final do jogo em `src/Entrega 2/Frontend/EcoCity1`
-
-Organização do código:
-
-- `Backend`: scripts organizados por sistemas como tabuleiro, câmera, lógica de jogo, jogador, interface e visual.
-- `Frontend`: projetos Unity utilizados no desenvolvimento e na versão final jogável.
 
 ## 📋 Licença/License
 <a href="https://example.com">Eco City</a> © 2026 by <a href="https://example.com">Leonardo Batista França, Arthur Lima de Luiz, Brian Walter e FECAP</a> is licensed under <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a><img src="https://mirrors.creativecommons.org/presskit/icons/cc.svg" alt="" style="max-width: 1em;max-height:1em;margin-left: .2em;"><img src="https://mirrors.creativecommons.org/presskit/icons/by.svg" alt="" style="max-width: 1em;max-height:1em;margin-left: .2em;">
